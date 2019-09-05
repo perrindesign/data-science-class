@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Science Tools</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Introduction to Data Science Tools
+
+09/09/2019
+
+---
+# TODOs
+<br/>
+
+--
+count: false
+- Read Chapter 1 of PDSH
+--
+count: false
+- Answer and submit Quiz1
+
+---
+# Tools we'll be using
+<br/>
+
+--
+count: false
+ - **Python** (3.7): Programming language
+
+
+--
+count: false
+- **Anaconda** (4.7): Package maintenance and environments 
+
+
+--
+count: false
+ - **Jupyter** : IDE
+
+
+--
+count: false
+ - **Git** : Source control and versioning
+
+
+---
+# Aside: The Terminal and The Shell
+<br/>
+
+.center[
+ ![:scale 50%](images/terminal.png)]
+
+--
+count: false
+ - If not familiar, get aquainted
+
+--
+count: false
+ - Common set of commands (Ex. cd, ls, cat, mv)
+
+
+--
+count: false
+ - OSX and Linux, comes by default
+ - Windows coming soon, will get along with git
+
+---
+# Aside: Common Commands
+
+--
+count: false
+ - `cd` : change directory
+
+--
+count: false
+ - `pwd` : where am i
+
+--
+count: false
+ - `ls` : list directory contents
+
+--
+count: false
+ - `head` : show the beginning of a file
+
+--
+count: false
+ - `tail` : show the end of a file
+
+--
+count: false
+ - `cat` : show an entire file
+
+--
+count: false
+ - `less` : open a file in a pager
+
+--
+count: false
+ - `rm` : remove file
+
+--
+count: false
+ - ...
+
+
+---
+# Why Python?
+<br/>
+
+--
+count: false
+ - Robust and active DS stack
+
+
+--
+count: false
+ - Cross-platform
+
+
+--
+count: false
+ - Relatively low learning curve
+
+
+ <br/><br/>
+--
+count: false
+ - Many other good languages and frameworks (R, Scala, etc.)
+
+
+---
+# Python 2 vs 3
+<br/>
+
+--
+count: false
+ - We'll be using Python 3.7
+
+--
+count: false
+ - Most projects moving to 3.6 and above, see scikit-learn
+
+<br/>
+--
+count: false
+ - Need 2 for another class? Virtual environments
+
+---
+# How To Get Python
+<br/>
+
+
+--
+count: false
+ - You might already have it
+
+
+--
+count: false
+ - But your OS needs it!
+
+
+--
+count: false
+ - Our solution: Anaconda
+
+ &nbsp;&nbsp;&nbsp;&nbsp;![:scale 25%](https://www.anaconda.com/wp-content/uploads/2018/06/cropped-Anaconda_horizontal_RGB-1-600x102.png)
+
+---
+# Why Anaconda?
+<br/>
+
+
+--
+count: false
+ - includes most of what we need by default
+
+
+--
+count: false
+ - package curation
+
+
+--
+count: false
+ - conda virtual environments
+
+
+--
+count: false
+ - cross-platform
+
+---
+#Installing Anaconda
+
+ - Download via https://www.anaconda.com/distribution/
+
+--
+count: false
+ - Select OS and Grab Python 3.7 version
+
+--
+count: false
+ - Install somewhere easy to navigate to (Ex: /home/bgibson/anaconda3)
+
+
+--
+count: false
+ - Recommend letting installer run `conda init`
+
+<br/>
+--
+count: false
+ - Note `base` environment activated by default
+ - Turn off via `conda config --set auto_activate_base false`
+
+
+---
+# Running Python
+<br/>
+
+Via REPL (Read–Eval–Print Loop)
+
+```bash
+*(base) bgibson@civet:~$ python
+Python 3.7.3 (default, Mar 27 2019, 22:11:17) 
+[GCC 7.3.0] :: Anaconda, Inc. on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print('hello')
+hello
+>>> quit()
+```
+
+--
+count:false
+
+ - `Ctrl-D` or `quit()` to exit
+
+???
+
+
+---
+# Running Python
+<br/>
+
+Via command line
+
+```bash
+*(base) bgibson@civet:~$ python -c "print('hello')"
+hello
+```
+
+<br/>
+--
+count:false
+Via script
+
+```bash
+(base) bgibson@civet:~$ echo "print('hello')" > say_hello.py
+*(base) bgibson@civet:~$ python say_hello.py
+hello
+```
+
+---
+# Ipython: Interactive Python
+<br/>
+
+
+--
+count:false
+
+- history
+
+--
+count:false
+
+- tab completion
+
+--
+count:false
+
+- magic commands
+
+--
+count:false
+
+- help
+
+--
+count:false
+
+- ...
+
+---
+#Ipython : REPL and Help
+
+```bash
+(base) bgibson@civet:~$ ipython
+Python 3.7.3 (default, Mar 27 2019, 22:11:17)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.6.1 -- An enhanced Interactive Python. Type '?' for help.
+
+In [1]: print('hello')
+hello
+
+In [2]: len?
+Signature: len(obj, /)
+Docstring: Return the number of items in a container.
+Type:      builtin_function_or_method
+
+In [3]:
+```
+
+---
+#Ipython Magic Commands
+
+--
+count:false
+
+- preceded by % for line, %% for cell
+
+--
+count:false
+
+```python
+In [1]: %run say_hello.py
+hello
+```
+
+--
+count:false
+
+```python
+In [2]: %timeit sorted([5,1,2,5])
+162 ns ± 1.87 ns per loop (mean ± std. dev. of 7 runs, 10000000 loops each)
+```
+--
+count:false
+
+```python
+In [22]: %%timeit x = []
+    ...: for i in range(20):
+    ...:     x.append(i**2)
+    ...:
+3.39 µs ± 65 ns per loop (mean ± std. dev. of 7 runs, 100000 loops each)
+```
+
+---
+#Help with Magic Commands
+<br/>
+
+--
+count:false
+- %timeit?
+
+--
+count:false
+- %magic
+
+--
+count:false
+- %lsmagic
+
+
+---
+#Ipython Notebooks with Jupyter
+<br/>
+
+--
+count:false
+- application that combines code, markup and visualizations
+
+--
+count:false
+- interact via web browser
+
+--
+count:false
+- notebooks are easily sharable
+
+--
+count:false
+- Jupyter can run other kernels as well: R, Julia, etc.
+
+
+--
+count:false
+```bash
+(base) bgibson@civet:~$ cd ~/proj
+(base) bgibson@civet:~/proj$ jupyter notebook
+```
+
+--
+count:false
+- launches in your default browser
+
+--
+count:false
+- `Ctrl-C` to kill server
+
+--
+count:false
+- DEMO
+
+---
+#Other IDEs
+<br/>
+
+- jupyterlab
+- spyder
+- pycharm
+- visual studio code
+- ...
+
+<br/>
+- arguments against notebooks: [slides by Joel Grus](https://conferences.oreilly.com/jupyter/jup-ny/public/schedule/detail/68282)
+
+
+---
+# Virtual Environments
+<br/>
+
+--
+count:false
+- encapsulate python executable and packages
+
+--
+count:false
+- allow for easy experimentation
+
+--
+count:false
+- workaround versioning issues
+
+--
+count:false
+- two major implementations: virtualenv and conda
+
+--
+count:false
+
+---
+# Virtual Environments with Conda
+```bash
+*(base) bgibson@civet:~$ conda create -n py2 python=2.7
+...
+```
+--
+count:false
+```bash
+*(base) bgibson@civet:~$ conda activate py2
+(py2) bgibson@civet:~$ which python
+/home/bgibson/anaconda3/envs/py2/bin/python
+(py2) bgibson@civet:~$ python --version
+Python 2.7.16 :: Anaconda, Inc.
+```
+--
+count:false
+```bash
+*(py2) bgibson@civet:~$ conda deactivate
+(base) bgibson@civet:~$ which python
+/home/bgibson/anaconda3/bin/python
+(base) bgibson@civet:~$ python --version
+Python 3.7.3
+
+```
+
+---
+# Managing Conda Enviroments
+</br>
+
+--
+count:false
+- `conda create -n [env_name]`
+--
+count:false
+- `conda create -n [env_name] [package] [package]=[version]`
+--
+count:false
+- `conda create -n [env_name] -f [specfile]`
+
+
+--
+count:false
+- `conda activate [name]`
+--
+count:false
+- `conda deactivate`
+
+
+--
+count:false
+- `conda env list`
+
+
+--
+count:false
+- For more information see: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+
+---
+# Installing New Packages
+
+--
+count:false
+- again, don't want to mess with system packages (separate method)
+
+
+--
+count:false
+- first, try conda:<br/>
+`conda install -n [env_name] [package]`
+
+
+--
+count:false
+- next, try another channel : conda-forge<br/>
+`conda install -n [env_name] -c conda-forge [package]`
+
+
+--
+count:false
+- lastly, try pip:<br/>
+`pip install [package]`
+
+
+--
+count:false
+- when you can, double check the path to your env
+
+
+---
+# Conda Envs and Jupyter
+
+--
+count:false
+
+- jupyter can run many different kernels
+
+--
+count:false
+
+- conda envs not automatically added as available kernels
+
+--
+count:false
+
+Example:
+```bash
+(base) bgibson@civet:~$ conda activate py2
+(py2) bgibson@civet:~$ conda install ipykernel
+(py2) bgibson@civet:~$ python -m ipykernel install --user --name py2
+```
+--
+count:false
+- to list kernels: `jupyter kernelspec list`
+--
+count:false
+- to remove kernel: `jupyter kernelspec uninstall [name]`
+
+
+--
+count:false
+- note: fix for this may happen soon?
+
+
+
+
+---
+class: middle
+
+# Questions?
+
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>

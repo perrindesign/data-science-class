@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduction</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Introduction
+
+
+Bryan R. Gibson, PhD
+
+---
+# Who is this course for?
+<br/>
+People fairly new to:
+--
+count: false
+ - Data Science Python tools
+--
+count: false
+ - Experimental Statistics
+--
+count: false
+ - Machine Learning
+
+---
+
+# What will we be covering?
+
+--
+count: false
+ - DS tools
+--
+count: false
+ - Data manipulation, cleaning and transformation
+--
+count: false
+ - Intro to data exploration and visualization
+--
+count: false
+ - Intro to analysis and hypothesis testing
+--
+count: false
+ - Intro to predictive modeling
+--
+count: false
+ - Intro to clustering and topic modeling
+--
+count: false
+ - Intro to dimensionality reduction and image recognition
+--
+count: false
+ - Intro to time series data
+--
+count: false
+ - Intro to databases
+--
+count: false
+ - Intro to recommendation engines
+
+---
+
+# Logistics
+</br>
+
+## Email: brg2130@columbia.edu
+</br>
+
+## IAs: TBD
+</br>
+
+## Office Hours
+- Bryan: 5-7pm Mondays in DSI
+- IAs: TBA
+
+???
+
+---
+# Course Materials
+<br/>
+ - Website via Canvas:<br/>https://courseworks2.columbia.edu/courses/90048
+
+
+ - Slides via git:<br/>https://github.com/bryanrgibson/eods-f19
+
+---
+# Textbook
+
+ - **Python Data Science Handbook** by Jake VanderPlas:<br/>https://jakevdp.github.io/PythonDataScienceHandbook/
+
+
+ .center[
+ ![:scale 25%](https://jakevdp.github.io/PythonDataScienceHandbook/figures/PDSH-cover.png)]
+
+---
+# Additional Resources
+
+## Books:
+
+- **Practical Statistics for Data Scientists** by Bruce & Bruce
+- **Data Science from Scatch** by Joel Grus
+- **Feature Engineering for Machine Learning** by Zheng & Casari
+
+### See the course website for more!
+
+???
+
+---
+# Homeworks and Exams
+<br/>
+- Weekly Quiz, submit online, graded on completion
+
+
+- 4 Homework Assignments, submit online, equally weighted
+
+
+- Midterm Exam in class
+
+
+- Final Exam in class
+
+---
+# Plagiarism and Code copying
+<br/>
+
+- Homeworks are checked for plagiarism
+
+
+- Copied code will result in 0 points for all involved
+
+
+- Copying from my slides or online sources (Stack overflow, tutorials, etc. ) is fine.
+
+???
+
+
+---
+class: middle
+
+# Questions ?
+
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
