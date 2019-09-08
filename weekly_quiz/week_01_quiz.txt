@@ -1,0 +1,45 @@
+## Install git and clone repo
+
+# 1. Download and install git: https://git-scm.com/downloads
+
+# 2. Clone the course repo: https://github.com/bryanrgibson/eods-f19
+
+
+## Install python and create a notebook
+
+# 1. Download and install Anaconda 3 via https://www.anaconda.com/distribution/
+
+# 2. On the command line, in the (base) environment
+#    create a new virtual environment using the requirements file:
+$ conda create -n eods-f19 -f requirements.txt
+
+# 3. Activate the new environment
+$ conda activate eods-f19
+
+# 4. Add the new environment to jupyter
+$ python -m ipykernel install --user --name eods-f19
+
+# 5. Return to the base environment and launch Jupyter Notebook server
+$ conda deactivate
+$ jupyter notebook
+
+# 6. Navigate to this folder: eods-f10/weekly_quiz/
+
+# 7. Open a new notebook using the newly created kernel 'eods-f19'
+
+# 8. Raname the notebook 'Week_1_Quiz-[uniqname]', replace with your uniqname
+
+# 9. In the first cell import pandas:
+In []: import pandas as pd
+
+# 10. In the second cell print out the version of pandas imported:
+In []: print(pd.__version__)
+
+
+## Submission
+
+# 1. In notebook : File -> Print Preview
+
+# 2. Using browser, print to pdf : Print -> Save as PDF -> Week_1_Quiz-[uniqname].pdf
+
+# 3. Upload pdf to Gradescope (should recieve link via email)
