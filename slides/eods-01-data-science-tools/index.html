@@ -390,8 +390,8 @@ count:false
 Via script
 
 ```bash
-(base) bgibson@civet:~$ echo "print('hello')" > say_hello.py
-*(base) bgibson@civet:~$ python say_hello.py
+(base) bgibson@civet:~$ echo "print('hello')" > /tmp/say_hello.py
+*(base) bgibson@civet:~$ python /tmp/say_hello.py
 hello
 ```
 
@@ -698,7 +698,16 @@ count:false
 count:false
 - note: fix for this may happen soon?
 
+---
+# Jupyter Demo
 
+--
+count:false
+- Important: `h` for help
+
+--
+count:false
+- Markdown syntax help: https://daringfireball.net/projects/markdown/syntax
 
 ---
 # Example Notebooks
@@ -716,6 +725,8 @@ http://imgs.xkcd.com/comics/git.png
 
 ---
 # Git
+<br>
+
 
 --
 count:false
@@ -723,23 +734,27 @@ count:false
 
 --
 count:false
-- for both code and documentation
+- for code, documentation, data?
 
 
 ---
 # Github
+<br/>
 
 --
 count:false
 - backup
 
+
 --
 count:false
 - sharing
 
+
 --
 count:false
 - used for both large and small projects
+
 
 --
 count:false
@@ -748,21 +763,237 @@ count:false
 
 ---
 # Getting course material
+<br/>
+
 
 --
 count:false
 - Can view online at: https://github.com/bryanrgibson/eods-f19
 
+
 --
 count:false
-- `$ git clone https://github.com/bryanrgibson/eods-f19`
+```bash
+$ cd [your projects folder]
+$ git clone https://github.com/bryanrgibson/eods-f19
+```
 
+<br/>
+--
+count:false
+- We'll discuss more in the future
 
 ---
 class: middle
 
-# Questions?
+# Questions re Tools?
 
+
+---
+# Python Review
+
+
+--
+count:false
+- Basic Data Types
+
+
+--
+count:false
+- Comparisons and Logical Operators
+
+
+--
+count:false
+- Conditionals
+
+
+--
+count:false
+- Looping
+
+
+--
+count:false
+- List/Dict Comprehensions
+
+
+<br/>
+--
+count:false
+- Style Guide : PEP 8 (https://www.python.org/dev/peps/pep-0008/)
+
+
+---
+#Basic Python Data Types
+<br/>
+
+--
+count:false
+- **int** : `42`
+
+
+--
+count:false
+- **float** : `4.2` or `4e2`
+
+
+
+--
+count:false
+- **boolean (bool)** : `True` or `False`
+
+
+--
+count:false
+- **string (str)** : `'num 42'` or `"num 42"`
+
+
+--
+count:false
+- **none**: `None`
+
+<br/>
+--
+count:false
+- also `long`, `complex`, `bytes`, etc.
+
+---
+#Python Data Types Continued
+<br/>
+
+--
+count:false
+- **list** : `x = [42,'e',2.0]`&nbsp;&nbsp;
+    - `x[0] == 42 # indexing`
+    - `x[2] = 4 # assignment`
+
+
+--
+count:false
+- **dict** : `x = {'b':2,'a':1,'c':4}`
+    - `x['b'] == 2 # indexing`
+    - `x['d'] = 3 # assignment`
+    - `x.keys()`
+    - `x.values()`
+    - `x.items()`
+
+---
+#Python Data Types Continued
+<br>
+
+--
+count:false
+- **tuple** : `x = (2,'e')`
+    - `x[0] == 2 # indexing`
+    - `x[0] = 3 # assignment? Nope, error, immutable`
+
+--
+count:false
+- **set** : `x = {2,'e','e'}`
+    - `x.add(1)`
+    - `x.remove('e')`
+
+
+---
+# Python Comparisons and Logical Operators
+<br/>
+
+
+--
+count:false
+- `==, !=, <, >, <=, >=`
+
+
+--
+count:false
+- `is, and, or, not`
+
+
+--
+count:false
+- `&, | , ~ # bitwise operators, we'll see these in pandas`
+
+
+---
+# Conditionals
+
+--
+count:false
+- if then elif then
+
+```python
+    if x > 0:
+        print('x > 0')
+    elif x < 0:
+        print('x < 0')
+    else:
+        print('x == 0')
+```
+
+--
+count:false
+
+- single line if then else
+
+```python
+"x < 0" if (x < 0) else "x >= 0"
+```
+
+---
+# Python Loops
+
+--
+count:false
+- for loop
+
+```python
+for x in range(5):
+    print(x)
+```
+
+--
+count:false
+- while loop
+
+```python
+x = 0
+while x < 5:
+    print(x)
+    x += 1
+```
+
+---
+# List/Dict Comprehensions
+<br>
+
+--
+count:false
+- List Comprehension
+
+```python
+zero_to_four = [x for x in range(5)]
+```
+
+--
+count:false
+```python
+even_idx = [i for i,x in enumerate(zero_to_four) if x%2 == 0]
+```
+
+--
+count:false
+- Dict Comprehension
+
+```python
+pairs = ((1,'e'),(3,'f'))
+X = {key:val for key,val in pairs}
+```
+
+---
+class:middle
+
+# Questions?
 
 
     </textarea>
