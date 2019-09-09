@@ -8,7 +8,8 @@
 ## Install python and create a notebook
 
 # 1. Download and install Anaconda 3 via https://www.anaconda.com/distribution/ 
-#    install using defaults, but double check the location
+#    Follow the instructions here for your os: https://docs.anaconda.com/anaconda/install/
+#    For macOS, I recommend the command-line install
 
 # 2. Open a terminal and navigate to where you cloned the course repo
 #     windows via Start->Anaconda Prompt (Anaconda3)
