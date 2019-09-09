@@ -7,32 +7,36 @@
 
 ## Install python and create a notebook
 
-# 1. Download and install Anaconda 3 via https://www.anaconda.com/distribution/
+# 1. Download and install Anaconda 3 via https://www.anaconda.com/distribution/ 
+#    install using defaults, but double check the location
 
-# 2. On the command line, in the (base) environment
+# 2. Open a terminal and navigate to where you cloned the course repo
+#     windows via Start->Anaconda Prompt (Anaconda3)
+
+# 3. On the command line, in the (base) environment
 #    create a new virtual environment using the requirements file:
-$ conda create -n eods-f19 -f requirements.txt
+$ conda create -n eods-f19 --file requirements.txt
 
-# 3. Activate the new environment
+# 4. Activate the new environment
 $ conda activate eods-f19
 
-# 4. Add the new environment to jupyter
+# 5. Add the new environment to jupyter
 $ python -m ipykernel install --user --name eods-f19
 
-# 5. Return to the base environment and launch Jupyter Notebook server
+# 6. Return to the base environment and launch Jupyter Notebook server
 $ conda deactivate
 $ jupyter notebook
 
-# 6. Navigate to this folder: eods-f10/weekly_quiz/
+# 7. In Jupyter, navigate to the folder: weekly_quiz/
 
-# 7. Open a new notebook using the newly created kernel 'eods-f19'
+# 8. Open a new notebook using the newly created kernel 'eods-f19'
 
-# 8. Raname the notebook 'Week_1_Quiz-[uniqname]', replace with your uniqname
+# 9. Raname the notebook 'Week_1_Quiz-[uniqname]', replace with your uniqname
 
-# 9. In the first cell import pandas:
+# 10. In the first cell import pandas:
 In []: import pandas as pd
 
-# 10. In the second cell print out the version of pandas imported:
+# 11. In the second cell print out the version of pandas imported:
 In []: print(pd.__version__)
 
 
