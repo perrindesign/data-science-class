@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Exploration and Visualization</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Data Exploration and Visualization
+
+09/16/2019
+
+---
+# TODOs
+<br/>
+
+--
+count: false
+- Read ??TODO??
+--
+count: false
+- Answer and submit Quiz2
+
+
+---
+# Today's Agenda
+
+- Python Review
+
+- Intro to Numpy
+
+- Pandas Dataframes
+
+- Data Exploration with Pandas
+
+- Intro to Visualization in Python
+
+
+---
+# Python Review
+
+
+--
+count:false
+- Basic Data Types
+
+
+--
+count:false
+- Comparisons and Logical Operators
+
+
+--
+count:false
+- Conditionals
+
+
+--
+count:false
+- Looping
+
+
+--
+count:false
+- List/Dict Comprehensions
+
+
+<br/>
+--
+count:false
+- Style Guide : PEP 8 (https://www.python.org/dev/peps/pep-0008/)
+
+
+---
+#Basic Python Data Types
+<br/>
+
+--
+count:false
+- **int** : `42`
+
+
+--
+count:false
+- **float** : `4.2` or `4e2`
+
+
+
+--
+count:false
+- **boolean (bool)** : `True` or `False`
+
+
+--
+count:false
+- **string (str)** : `'num 42'` or `"num 42"`
+
+
+--
+count:false
+- **none**: `None`
+
+<br/>
+--
+count:false
+- also `long`, `complex`, `bytes`, etc.
+
+---
+#Python Data Types Continued
+
+--
+count:false
+- **list** : `x = [42,'e',2.0]`&nbsp;&nbsp;
+--
+count:false
+    - `x[0] == 42 # indexing`
+--
+count:false
+    - `x[2] = 4 # assignment`
+--
+count:false
+    - `x.pop(2) # delete`
+
+
+--
+count:false
+- **dict** : `x = {'b':2,'a':1,'c':4}`
+--
+count:false
+    - `x['b'] == 2 # indexing`
+--
+count:false
+    - `x['d'] = 3 # assignment`
+--
+count:false
+    - `x.pop('d',None) # delete`
+--
+count:false
+    - `x.keys()`
+--
+count:false
+    - `x.values()`
+--
+count:false
+    - `x.items()`
+
+---
+#Python Data Types Continued
+<br>
+
+--
+count:false
+- **tuple** : `x = (2,'e')`
+--
+count:false
+    - `x[0] == 2 # indexing`
+--
+count:false
+    - `x[0] = 3 # assignment? Nope, error, immutable`
+
+--
+count:false
+- **set** : `x = {2,'e','e'}`
+--
+count:false
+    - `x.add(1)`
+--
+count:false
+    - `x.remove('e')`
+--
+count:false
+    - `x.intersection({2,3})`
+--
+count:false
+    - `x.difference({2,3})`
+
+
+---
+# Python Comparisons and Logical Operators
+<br/>
+
+
+--
+count:false
+- `==, !=, <, >, <=, >=`
+
+
+--
+count:false
+- `is, and, or, not`
+
+
+--
+count:false
+- `&, | , ~ # bitwise operators, we'll see these in pandas`
+
+
+---
+# Control Flow
+
+--
+count:false
+- if then elif then else
+
+```python
+    if x &gt; 0:
+        print('x &gt; 0')
+    elif x &lt; 0:
+        print('x &lt; 0')
+    else:
+        print('x == 0')
+```
+
+--
+count:false
+
+- single line if then else
+
+```python
+"x &lt; 0" if (x &lt; 0) else "x &gt;= 0"
+```
+
+---
+# More Control Flow
+
+
+--
+count:false
+- range
+
+```python
+list(range(3)) == [0,1,2]
+```
+
+--
+count:false
+- for loop
+
+```python
+for x in range(5):
+    print(x)
+```
+
+--
+count:false
+- while loop
+
+```python
+x = 0
+while x &lt; 5:
+    print(x)
+    x += 1
+```
+
+---
+# More Control Flow
+
+--
+count:false
+- `break`
+
+```python
+x = 0
+while True:
+    print(x)
+    x += 1
+    if x == 5:
+        break
+```
+        
+
+--
+count:false
+- `continue`
+
+```python
+for x in range(5):
+    if x == 0:
+        continue
+    print(x)
+```
+
+---
+# List/Dict Comprehensions
+<br>
+
+--
+count:false
+- List Comprehension
+
+```python
+y = [x for x in range(1,10,3)]
+```
+
+--
+count:false
+```python
+even_idx = [i for i,x in enumerate(y) if x%2 == 0]
+```
+
+--
+count:false
+- Dict Comprehension
+
+```python
+pairs = ((1,'e'),(3,'f'))
+x = {key:val for key,val in pairs}
+```
+
+---
+class:middle
+
+# Questions re Python?
+
+---
+# Intro to Numpy
+<br/>
+
+
+---
+#Pandas Dataframes
+<br/>
+
+
+---
+#Data Exploration with Pandas
+<br/>
+
+
+---
+#Intro to Visualization in Python
+<br/>
+
+---
+class:middle
+
+# Questions?
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
