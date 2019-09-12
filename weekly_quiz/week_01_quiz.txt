@@ -2,7 +2,9 @@
 
 # 1. Download and install git: https://git-scm.com/downloads
 
-# 2. Clone the course repo: https://github.com/bryanrgibson/eods-f19
+# 2. In a folder where you keep your projects,
+#    clone the course repo from https://github.com/bryanrgibson/eods-f19
+$ git clone https://github.com/bryanrgibson/eods-f19.git
 
 
 ## Install python and create a notebook
