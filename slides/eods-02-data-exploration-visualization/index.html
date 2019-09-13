@@ -193,17 +193,18 @@ count:false
 
 --
 count:false
-- `==, !=, <, >, <=, >=`
+- `==, !=, &lt;, &gt;, &lt;=, &gt;=`
 
 
 --
 count:false
 - `is, and, or, not`
 
-
+<br/>
 --
 count:false
-- `&, | , ~ # bitwise operators, we'll see these in pandas`
+bitwise operators, we'll see these in numpy and pandas
+- `&amp;, | , ~` 
 
 
 ---
@@ -324,8 +325,319 @@ class:middle
 # Questions re Python?
 
 ---
+#Working with Data
+<br/>
+
+Want to:
+--
+count:false
+
+--
+count:false
+- transform and select data quickly (numpy)
+
+
+--
+count:false
+- manipulate datasets: load,save,group,join,etc. (pandas)
+
+
+--
+count:false
+- keep things organized (pandas)
+
+
+
+
+
+---
 # Intro to Numpy
 <br/>
+
+--
+count:false
+ Provides (from numpy.org):
+
+--
+count:false
+ - a powerful N-dimensional array object
+
+
+--
+count:false
+ - sophisticated (broadcasting) functions
+
+
+--
+count:false
+ - linear algebra and random number capabilities
+
+
+--
+count:false
+- (Fourier transform, tools for integrating C/C++ and Fortran code, etc.)
+
+
+---
+#Python Dynamic Typing
+
+--
+count:false
+```python
+for x in my_things:
+    print(x)
+```
+--
+count:false
+```python
+x = 5
+x = 'five'
+```
+--
+count:false
+- Note: still *strongly* typed
+
+```ipython
+In [3]: x,y = 5,'five'; x+y
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-3-83ed16e41e50> in <module>
+----> 1 x,y = 5,'five'; x+y
+
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+
+```
+
+---
+#Python Dynamic Typing
+<br/>
+
+
+--
+count:false
+
+<br/>
+.middle.center[
+![](images/cint_vs_pyint.png)]
+<br/>
+<br/>
+.small.bottom[[PDHS Chap 2.](https://jakevdp.github.io/PythonDataScienceHandbook/02.01-understanding-data-types.html)]
+
+
+
+---
+#Numpy Array vs Python List:
+
+--
+count:false
+
+<br/>
+.middle.center[
+![:scale 75%](images/array_vs_list.png)]
+<br>
+.bottom.small[[PDHS Chap 2.](https://jakevdp.github.io/PythonDataScienceHandbook/02.01-understanding-data-types.html)]
+
+
+---
+#Numpy Arrays
+
+--
+count:false
+```ipython
+In [5]: import numpy as np
+```
+
+--
+count:false
+```ipython
+In [6]: np.array([1,2,3])
+Out[6]: array([1, 2, 3])
+```
+
+--
+count:false
+```ipython
+In [7]: np.array([1,'two',3])
+Out[7]: array(['1', 'two', '3'], dtype='&lt;U21')
+```
+
+--
+count:false
+```ipython
+In [10]: np.ones(5,dtype=int)
+Out[10]: array([1, 1, 1, 1, 1])
+```
+
+--
+count:false
+```ipython
+In [11]: np.full((2,3),3.14)
+Out[11]:
+array([[3.14, 3.14, 3.14],
+       [3.14, 3.14, 3.14]])
+```
+
+--
+count:false
+```ipython
+In [8]: np.array([[1,2],[3,4]])
+Out[8]:
+array([[1, 2],
+       [3, 4]])
+```
+
+---
+#Numpy Array Indexing
+
+--
+count:false
+```ipython
+In [22]: x = np.arange(1,6)
+
+In [23]: x
+Out[23]: array([ 1,  2,  3,  4,  5])
+```
+
+--
+count:false
+```ipython
+In [24]: x[0]
+Out[24]: 1
+```
+
+--
+count:false
+```ipython
+In [25]: x[-1]
+Out[25]: 5
+```
+
+--
+count:false
+```ipython
+In [26]: x[-2]
+Out[26]: 4
+```
+
+
+---
+#Numpy Array Slicing
+
+--
+count:false
+```ipython
+In [31]: x
+Out[31]: array([1, 2, 3, 4, 5])
+```
+
+--
+count:false
+```ipython
+In [32]: x[:2]
+Out[32]: array([1, 2])
+```
+
+--
+count:false
+```ipython
+In [33]: x[3:]
+Out[33]: array([4, 5])
+```
+
+--
+count:false
+```ipython
+In [34]: x[-3:]
+Out[34]: array([3, 4, 5])
+```
+
+--
+count:false
+```ipython
+In [36]: x[1:3]
+Out[36]: array([2, 3])
+```
+
+---
+#Numpy Array Slicing with Steps
+
+--
+count:false
+```ipython
+In [37]: x[1:4:2]
+Out[37]: array([2, 4])
+```
+--
+count:false
+```ipython
+In [38]: x[::-1]                                                                
+Out[38]: array([5, 4, 3, 2, 1])
+```
+
+---
+#Numpy Multidimensional Arrays
+
+--
+count:false
+```ipython
+In [7]: x = np.random.randint(10,size=(2,3))
+
+In [8]: x
+Out[8]:
+array([[8, 0, 4],
+       [5, 4, 4]])
+```
+
+--
+count:false
+```ipython
+In [9]: x[0,0]
+Out[9]: 8
+```
+
+--
+count:false
+```ipython
+In [10]: x[0,:]
+Out[10]: array([8, 0, 4])
+```
+
+---
+#Numpy Operations (UFuncs)
+
+--
+count:false
+```ipython
+In [24]: x,y = [1,2,3],[4,5,6]
+
+In [25]: x+y
+Out[25]: [1, 2, 3, 4, 5, 6]
+```
+
+--
+count:false
+```ipython
+In [26]: x,y = np.array([1,2,3]),np.array([4,5,6])
+
+In [27]: x+y
+Out[27]: array([5, 7, 9])
+```
+
+
+---
+```ipython
+In [30]: x,z = [1,2,3],2                                                        
+
+In [31]: x**z                                                                   
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-31-d2112862d5ae> in <module>
+----> 1 x**z
+```
+
+TypeError: unsupported operand type(s) for ** or pow(): 'list' and 'int'
+
+
 
 
 ---
