@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visualization</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Visualization
+
+
+
+---
+#Matplotlib
+<br>
+
+Matplotlib is a Python 2D plotting library which produces publication quality figures in a variety of hardcopy formats and interactive environments across platforms.
+
+<br><br>
+.center[
+![](images/matplotlib_logo.png)]
+
+
+---
+# Matplotlib: Import and Configure
+<br>
+
+.center[
+![](images/matplotlib_notebook_import.png)]
+
+---
+# Matplotlib MATLAB style
+
+--
+count:false
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+```
+
+--
+count:false
+```python
+x = np.linspace(0,10,1000)                                              
+```
+
+--
+count:false
+```python
+fig = plt.figure()
+```
+--
+count:false
+```python
+plt.plot(x,np.sin(x));                                                  
+```
+
+--
+count:false
+```python
+#plt.show(); shouldn't need this
+```
+
+--
+count:false
+```python
+plt.savefig('sin_of_x.png')    
+```
+
+---
+# Matplotlib Figure
+
+.center[
+![](images/sin_of_x.png)]
+
+---
+# Matplotlib Modify Figure
+
+.smaller[
+```python
+plt.title('Sine of x')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+```]
+.center[
+![:scale 50%](images/sine_of_x_withlabels.png)]
+
+
+
+---
+# Matplotlib Figure + Axes
+.smaller[
+```python
+fig,ax = plt.subplots(1,1,figsize=(4,3));
+```]
+
+--
+count:false
+
+.smaller[
+```python
+ax.plot(x,np.sin(x));
+ax.set_title('Sine of X');
+ax.set_xlabel('x');
+ax.set_ylabel('sin(x)');
+fig.tight_layout()   
+```]
+.center[
+![:scale 40%](images/sine_of_x_small.png)]
+
+---
+# Matplotlib Multiple Plots
+.smaller[
+```python
+fig,ax = plt.subplots(1,1,figsize=(4,3));
+ax.plot(x,np.sin(x),label='sin(x)');
+ax.plot(x,np.cos(x),label='cos(x)');
+ax.legend(loc='best')
+```]
+.center[
+![:scale 40%](images/sin_cos_singleplot.png)]
+
+---
+# Matplotlib Subplots
+.smaller[
+```python
+fig,ax = plt.subplots(1,2,figsize=(8,3));
+ax[0].plot(x,np.sin(x),color='red',linestyle=':')
+ax[0].set_title('Sine of x');
+ax[1].plot(x,np.cos(x),color='black',linestyle='-.')
+ax[1].set_title('Cosine of x');
+```]
+.center[
+![:scale 80%](images/sin_cos_doubleplot.png)]
+
+---
+# Matplotlib Axis Limits
+.smaller[
+```python
+fig,ax = plt.subplots(1,1,figsize=(4,3))
+ax.plot(x,np.sin(x))
+ax.set_xlim(-.1,4)
+ax.set_ylim(0,1.1)
+```]
+.center[
+![:scale 50%](images/sin_xylim.png)]
+
+---
+# Matplotlib Command Review
+
+- plt.figure()
+- plt.subplots()
+- ax.plot()
+- ax.set_title()
+- ax.set_xlabel(), ax.set_ylabel()
+- ax.set_xlim(), ax.set_ylim()
+- ax.get_xlim(), ax.get_ylim()
+- ax.legend()
+- fig.savefig()
+
+<br>
+- [Matplotlib Cheetsheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Python_Matplotlib_Cheat_Sheet.pdf)
+
+
+---
+class:middle
+
+# Questions re Matplotlib?
+
+
+---
+# Yellowcab Dataset
+
+Records of Yellowcab Taxi trips from January 2017.
+
+more info: http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml
+
+<br>
+We'll use a random subset of the full dataset:
+.smaller[
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(123)
+
+datafile = 'https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2017-01.csv'
+df = pd.read_csv(datafile,parse_dates=True)
+df = df.iloc[np.random.permutation(len(df))[:10000],:]
+df.to_csv('../data/yellow_tripdata_2017-01_subset10000rows.csv')
+```
+]
+
+---
+# Load First 1000 Rows of the Dataset
+
+.smallest[
+```python
+df = pd.read_csv('../data/yellow_tripdata_2017-01_subset10000rows.csv',
+                 parse_dates=['tpep_pickup_datetime','tpep_dropoff_datetime'],
+                 nrows=1000)
+df.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1000 entries, 0 to 999
+Data columns (total 17 columns):
+VendorID                 1000 non-null int64
+tpep_pickup_datetime     1000 non-null datetime64[ns]
+tpep_dropoff_datetime    1000 non-null datetime64[ns]
+passenger_count          1000 non-null int64
+trip_distance            1000 non-null float64
+RatecodeID               1000 non-null int64
+store_and_fwd_flag       1000 non-null object
+PULocationID             1000 non-null int64
+DOLocationID             1000 non-null int64
+payment_type             1000 non-null int64
+fare_amount              1000 non-null float64
+extra                    1000 non-null float64
+mta_tax                  1000 non-null float64
+tip_amount               1000 non-null float64
+tolls_amount             1000 non-null float64
+improvement_surcharge    1000 non-null float64
+total_amount             1000 non-null float64
+dtypes: datetime64[ns](2), float64(8), int64(6), object(1)
+memory usage: 132.9+ KB
+```]
+
+
+---
+# Extract and Engineer Columns
+
+--
+count:false
+.smaller[
+```python
+df = df[['tpep_pickup_datetime','tpep_dropoff_datetime',
+         'trip_distance','fare_amount','tip_amount']]
+```]
+
+--
+count:false
+.smaller[
+```python
+df['trip_duration'] = (df.tpep_dropoff_datetime -
+                       df.tpep_pickup_datetime).dt.seconds
+```]
+
+--
+count:false
+.smaller[
+```python
+df.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1000 entries, 0 to 999
+Data columns (total 6 columns):
+tpep_pickup_datetime     1000 non-null datetime64[ns]
+tpep_dropoff_datetime    1000 non-null datetime64[ns]
+trip_distance            1000 non-null float64
+fare_amount              1000 non-null float64
+tip_amount               1000 non-null float64
+trip_duration            1000 non-null int64
+dtypes: datetime64[ns](2), float64(3), int64(1)
+memory usage: 47.0 KB
+```]
+
+---
+# Generate Summary Stats and Visualizations
+
+--
+count:false
+- Central tendencies
+
+--
+count:false
+- Spread of data
+
+--
+count:false
+- Distributions
+
+--
+count:false
+- Correlations
+
+---
+#Exploring Central Tendencies: Mean
+
+--
+count:false
+- Sample Mean
+.center[$\Large \bar{x} = \frac{1}{n} \sum x_i$]
+
+--
+count:false
+```python
+df.trip_duration.mean()
+784.191
+```
+
+--
+count:false
+- Mean is sensitive to *outliers*
+
+--
+count:false
+- **Outlier:** a data point that differs significantly from other observations
+    - data error
+    - heavy tailed distribution
+
+
+---
+#Exploring Central Tendencies: Median
+
+--
+count:false
+- Median
+    - Divides sorted dataset into two equal sizes
+    - 50% of the data is less than the median
+
+--
+count:false
+```python
+df.trip_duration.median()
+630.5
+```
+
+--
+count:false
+- Median is *robust* to outliers
+--
+count:false
+- **Robust:** Not affected by outliers
+
+
+---
+#Exploring Spread: Variance
+
+--
+count:false
+- Sample Variance
+.center[$\Large s^2 = \frac{\sum(x-\bar{x})^2}{n-1}$]
+
+--
+count:false
+```python
+df.trip_duration.var()
+328246.59311211214
+```
+--
+count:false
+- But this is in $seconds^2$!
+
+
+---
+#Exploring Spread: Standard Deviation
+
+--
+count:false
+- Sample Standard Deviation
+.center[$\Large s = \sqrt{\frac{\sum(x-\bar{x})^2}{n-1}}$]
+
+--
+count:false
+
+```python
+df.trip_duration.std()
+572.928087208257
+```
+--
+count:false
+- This is in the original scale
+
+--
+count:false
+- Sensitive to outliers!
+
+
+---
+#Exploring Spread: IQR
+
+--
+count:false
+- Quartiles
+--
+count:false
+    - 25% of data is &le; first quartile, 25th percentile
+--
+count:false
+    - 50% of data is &le; second quartile, 50th percentile (Median)
+--
+count:false
+    - 75% of data is &le; third quartile, 75th percentile
+
+--
+count:false
+- **Interquartile Range (IQR)**
+    - (third quartile - first quartile) or (75th percentile - 25th percentile)
+
+--
+count:false
+- Can find quartiles with: pandas quantile or numpy percentile
+
+--
+count:false
+.smaller[
+```python
+df.trip_duration.quantile(.75) - df.trip_duration.quantile(.25)
+634.5
+```
+]
+
+--
+count:false
+- IQR is robust to outliers
+
+
+---
+# Exploring Spread: Skew
+
+--
+count:false
+- Skewness
+    - measures assymetry of distribution around mean
+    - indicates tail to left (neg) or right (pos)
+
+--
+count:false
+```python
+df.trip_duration.skew()
+1.8838184334687227
+```
+
+---
+# Univariate Distribution: Histogram
+
+.smallest[
+```python
+df.trip_duration.plot.hist()
+plt.xlabel('trip_duration (seconds)')
+```]
+.center[![:scale 55%](images/trip_duration_hist_bins10.png)]
+
+---
+# Univariate Distribution: Histogram
+
+.smallest[
+```python
+df.trip_duration.plot.hist(bins=100)
+plt.xlabel('trip_duration (seconds)')
+```]
+.center[![:scale 55%](images/trip_duration_hist_bins100.png)]
+
+---
+# Univariate Distribution: Histogram
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(8,4));
+df.trip_duration.plot.hist(bins=100,ax=ax);
+ax.set_xlabel('trip_duration (seconds)');
+ax.vlines(df.trip_duration.mean(),*ax.get_ylim(),color='r');
+ax.text(df.trip_duration.mean()+12,ax.get_ylim()[1]/1.5,'mean');
+```]
+.center[![](images/trip_duration_hist_bins100_annotated.png)]
+
+
+---
+# Univariate Distribution: Histogram
+.smallest[
+```python
+fig,ax = plt.subplots(1,2,figsize=(12,4))
+df[df.tpep_pickup_datetime.dt.hour %lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
+ax[0].set_xlabel('trip_duration (seconds)');
+ax[0].set_title('Trips Before Noon');
+df[df.tpep_pickup_datetime.dt.hour %gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
+ax[1].set_xlabel('trip_duration (seconds)');
+ax[1].set_title('Trips After Noon');
+```]
+.center[![:scale 95%](images/trip_duration_hist_bins100_beforeafternoon.png)]
+
+---
+# Univariate Distribution: Histogram
+.smallest[
+```python
+*fig,ax = plt.subplots(1,2,figsize=(12,4), sharex=True, sharey=True)
+df[df.tpep_pickup_datetime.dt.hour %lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
+ax[0].set_xlabel('trip_duration (seconds)');
+ax[0].set_title('Trips Before Noon');
+df[df.tpep_pickup_datetime.dt.hour %gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
+ax[1].set_xlabel('trip_duration (seconds)');
+ax[1].set_title('Trips After Noon');
+```]
+.center[![:scale 95%](images/trip_duration_hist_bins100_beforeafternoon_sharexy.png)]
+    
+
+---
+# Plotting with Seaborn
+
+<br>
+Seaborn is a Python data visualization library based on matplotlib. It provides a high-level interface for drawing attractive and informative statistical graphics.
+
+<br>
+.center[
+![:scale 90%](images/seaborn_examples.png)]
+
+<br>
+--
+count:false
+```python
+import seaborn as sns
+```
+
+---
+# Seaborn Distplot
+
+```python
+sns.distplot(df.trip_duration);
+```
+.center[
+![:scale 55%](images/trip_duration_distplot.png)]
+
+---
+# Seaborn Distplot
+
+```python
+sns.distplot(df.trip_duration, rug=True);
+```
+.center[
+![:scale 55%](images/trip_duration_distplot_rug.png)]
+
+
+---
+# Seaborn Styles
+
+```python
+with sns.axes_style('darkgrid'):
+    sns.distplot(df.trip_duration, rug=True);
+```
+.center[
+![:scale 55%](images/trip_duration_distplot_rug_darkgrid.png)]
+
+---
+# Seaborn Styles
+
+Set style globally
+
+```python
+sns.set_style('darkgrid');
+```
+
+---
+# Seaborn: Multiple Plots
+
+.smallest[
+```python
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &lt; 12].trip_duration, label='before noon');
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &gt;= 12].trip_duration, label='after noon');
+plt.legend();
+```]
+.center[
+![:scale 55%](images/trip_duration_distplot_beforeafternoon.png)]
+
+---
+# Distplot Without KDE
+
+.smallest[
+```python
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &lt; 12].trip_duration, label='before noon',
+             norm_hist=False, kde=False
+            );
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &gt;= 12].trip_duration, label='after noon',
+             norm_hist=False, kde=False,
+            );
+plt.legend();
+```]
+.center[
+![:scale 45%](images/trip_duration_distplot_beforeafternoon_nokde.png)]]
+
+
+---
+# Aside: KDE
+
+--
+count:false
+- KDE: Kernel Density Estimation
+
+.center[![:scale 50%](images/kde2.png)![:scale 50%](images/kde3.png)]
+
+--
+count:false
+- For a good explanation of how it's used for plotting see: [seaborn docs](https://seaborn.pydata.org/tutorial/distributions.html)
+
+
+
+---
+# Univariate Distributions: Boxplot
+
+```python
+sns.boxplot(df.trip_duration)
+```
+.center[
+![](images/trip_duration_boxplot.png)]
+
+---
+# Univariate Distributions: Boxplot
+.center[
+![:scale 40%](images/trip_duration_boxplot.png)]
+--
+count:false
+
+- first quartile
+--
+count:false
+- second quartile (Median)
+--
+count:false
+- third quartile
+--
+count:false
+- whiskers (usually 1.5*IQR)
+--
+count:false
+- outliers
+
+---
+# Univariate Distributions: Other
+
+```python
+fig,ax = plt.subplots(1,2,figsize=(8,3))
+sns.distplot(df.trip_duration, ax=ax[0]);
+sns.boxplot(df.trip_duration, ax=ax[1]);
+```
+.center[
+![](images/trip_duration_distplot_boxplot.png)]
+
+---
+# Univariate Distributions: Other
+.smaller[
+```python
+fig,ax = plt.subplots(1,4,figsize=(16,4),sharey=True)
+sns.stripplot(x='before_noon',y='trip_duration',data=df,ax=ax[0])
+sns.boxplot(x='before_noon',y='trip_duration',data=df,ax=ax[1])
+sns.violinplot(x='before_noon',y='trip_duration',data=df,ax=ax[2])
+sns.swarmplot(x='before_noon',y='trip_duration',data=df,ax=ax[3])
+```]
+.center[![:scale 100%](images/compare_dist_plots.png)]
+
+
+---
+class:middle
+
+# Questions?
+
+---
+#Bivariate: Evaluating Correlation
+
+
+--
+count:false
+- Correlation: the degree to which two variables are linearly related
+
+--
+count:false
+- Pearson Correlation Coefficient:
+$\rho_{XY} = \frac{cov(X,Y)}{\sigma_X\sigma_Y}$
+
+--
+count:false
+- Sample Correlation:
+$r = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{(n-1)s_xs_y}$
+
+
+--
+count:false
+
+.smaller[
+- Takes values
+ - -1 (highly negatively correlated)
+ - 0 (not correlated)
+ - 1 (highly positively correlated)
+]
+
+--
+count:false
+
+```python
+from scipy.stats import pearsonr
+r,p = pearsonr(df.trip_duration, df.trip_distance)
+r
+0.7638445461887332
+```
+
+
+---
+# Bivariate: Scatterplot
+
+.smaller[
+```python
+sns.scatterplot(x='trip_duration',y='trip_distance',data=df,alpha=0.5);
+```]
+.center[![](images/trip_duration_trip_distance_scatter.png)]
+
+---
+# Bivariate: Add Regression Line
+
+```python
+sns.lmplot(x='trip_duration',y='trip_distance',data=df);
+```
+.center[![:scale 45%](images/trip_duration_trip_distance_lmplot.png)]
+
+---
+# Bivariate: Add Histograms
+
+```python
+sns.jointplot(x='trip_duration',y='trip_distance',data=df,alpha=0.5)
+```
+.center[![:scale 45%](images/trip_duration_trip_distance_jointplot.png)]
+
+---
+# Bivariate: Use KDE
+.smallest[
+```python
+sns.jointplot(x='trip_duration', y='trip_distance',
+              data=df[(df.trip_duration &lt; 1800) &amp; (df.trip_distance &lt; 5)],
+              kind='kde');
+```]
+.center[![:scale 40%](images/trip_duration_trip_distance_jointplot_kde.png)]
+
+---
+# Comparing Multiple Variables
+```python
+sns.pairplot(df[['trip_duration','trip_distance','tip_amount']]);
+```
+.center[![:scale 45%](images/trip_pairplot.png)]
+
+
+---
+# Categorical Variables
+
+--
+count:false
+Converting a real valued variable to categorical via Binning
+
+--
+count:false
+.smaller[
+```python
+def map_trip_duration_to_category(x):
+    if x &lt; 5*60:
+        return 'short'
+    elif x &lt; 20*60:
+        return 'medium'
+    else:
+        return 'long'
+```]
+
+--
+count:false
+.smaller[
+```python
+df['trip_duration_category'] = df.trip_duration.apply(map_duration_to_category)
+```]
+
+---
+#Plotting Frequency: Bar Chart
+
+```python
+df.trip_duration_category.value_counts().plot.bar()
+```
+
+.center[![](images/trip_duration_barchart.png)]
+
+---
+#Plotting Real and Categorical
+
+.smaller[
+```python
+sns.catplot(x='trip_duration_category',y='tip_amount',data=df,kind='bar')
+```]
+.center[![:scale 45%](images/tripdurationcat_tipamount_catplot_bar.png)]
+
+---
+#Adding Another Categorical
+
+.smaller[
+```python
+df['day_of_week'] = df.tpep_pickup_datetime.dt.dayofweek
+
+sns.catplot(x='day_of_week',y='tip_amount',hue='trip_duration_category',
+            data=df,kind='box',aspect=2)
+```]
+
+.center[![:scale 80%](images/tripdurationcat_tipamount_dayofweek_catplot_box.png)]
+
+
+---
+#Data Exploration and Viz
+
+--
+count:false
+- central tendencies: mean, median
+--
+count:false
+- spread: variance, std deviation, IQR
+--
+count:false
+- correlation: pearson correlation coefficient
+--
+count:false
+- plotting real valued variables: hist, scatter, distplot, lmplot
+--
+count:false
+- plotting categorical variables: bar
+--
+count:false
+- plotting interactions: jointplot, pairplot, catplot
+
+---
+class:middle
+
+# Questions re Viz?
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
