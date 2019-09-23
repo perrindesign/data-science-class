@@ -67,6 +67,34 @@ count:false
 - Did the number of likes change?
 
 ---
+#Mini Probability Intro
+
+- Random Variable 
+    - takes values from an associated probability distribution
+
+--
+count:false
+- Distribution
+    - describes probability of values of a Random Variable
+
+--
+count:false
+- $P(x)$: Probability
+    - probability of seeing $x$, takes value in [0,1]
+    - Ex: Probability of getting heads on a coin toss
+
+
+--
+count:false
+- $P(x|y)$: Conditional Probability
+    - probability of seeing $x$, given that some $y$ is true
+    - Ex: Probability of getting heads on a coin toss given that coin is fair
+
+
+
+--
+- so much more! See [Data Science From Scratch](https://ezproxy.cul.columbia.edu/login?qurl=https%3a%2f%2fsearch.ebscohost.com%2flogin.aspx%3fdirect%3dtrue%26db%3dnlebk%26AN%3d979529%26site%3dehost-live%26scope%3dsite&ebv=EK&ppid=Page-__-54)
+---
 #Population Distributions and Sampling
 
 <br/>
@@ -267,7 +295,15 @@ count:false
 - **PDF** (Probability Density Function): function of a continuous random variable that provides a relative likelihood of seeing a particular sample of a random variable.
 
 
-<br>
+---
+# Properties of a Normal Distribution
+
+.center[
+![:scale 80%](images/normal_distribution_proportions.png)]
+
+.smallest[
+from https://towardsdatascience.com/understanding-the-68-95-99-7-rule-for-a-normal-distribution-b7b7cbf760c2]
+
 ---
 # Plotting a Standard Normal
 
@@ -288,15 +324,6 @@ ax.vlines([-2,2],0,sp.stats.norm.pdf(2), colors='r');
 ```]
 .center[![:scale 40%](images/normal_distplot.png)]
 
-
----
-# Properties of a Standard Normal
-
-.center[
-![:scale 60%](images/standard-normal-distribution.jpg)]
-
-.smallest[
-from http://www.statisticshowto.com/wp-content/uploads/2013/09/standard-normal-distribution.jpg]
 
 ---
 # Confidence Intervals
@@ -531,6 +558,7 @@ count:false
 count:false
 - **Null Hypothesis:** $H_0$
     - the thing we're observing is happening due to random chance
+    - there are no differences between two groups
     - Ex: A difference in sales is just random
 
 
@@ -538,6 +566,7 @@ count:false
 count:false
 - **Alternative Hypothesis:** $H_1$
     - the thing we're observing is happening **not** due to random chance
+    - there is a difference between two groups
     - Ex: A difference in sales is not just random
 
 
@@ -565,13 +594,13 @@ from https://flowingdata.com/2014/05/09/type-i-and-ii-errors-simplified/]
 <br>
 --
 count:false
-- $p\left(\text{reject } H_0 \mid H_0 \text{ true}\right)$ = significance of test
+- $P\left(\text{reject } H_0 \mid H_0 \text{ true}\right)$ = significance of test
     - Probablity of saying things aren't by chance when they are
 
 <br>
 --
 count:false
-- $p\left(\text{reject } H_0 \mid H_1 \text{ true}\right)$ = power of test
+- $P\left(\text{reject } H_0 \mid H_1 \text{ true}\right)$ = power of test
     - Probability of saying things aren't by chance when they aren't
  
 ---
@@ -846,6 +875,485 @@ count:false
 --
 count:false
 - assumptions about normally distributed data are not needed
+
+---
+# How sure are we?
+
+--
+count:false
+- p-values
+
+> The probability of finding the observed, or more extreme, results when the null hypothesis ($H_0$) is true.
+
+--
+count:false
+
+
+--
+count:false
+- does mean : $P\left(\text{data} \mid H_0 \text{ is true}\right)$
+
+
+--
+count:false
+- does NOT mean : $P\left(H_0 \text{ is not true} \mid \text{data}\right)$
+
+
+--
+count:false
+- Our question about significance becomes:
+
+> "How often did we see a value as or more extreme than our observed metric?"
+
+---
+# Calculating $p$
+
+--
+count:false
+```python
+# find absolute values greater than our observed_metric
+gt = np.abs(np.array(rand_mean_diffs)) >= np.abs(observed_metric)
+```
+--
+count:false
+```python
+# how many are greater?
+num_gt = sum(gt)
+```
+--
+count:false
+```python
+# proportion of total that are as or more extreme
+p = num_gt / len(rand_mean_diffs)
+p
+```
+--
+count:false
+```
+0.2691
+```
+
+---
+# Tails
+
+.center[![:scale 100%](images/one_vs_two_tailed.gif)]
+
+.smallest[From https://towardsdatascience.com/one-tailed-or-two-tailed-test-that-is-the-question-1283387f631c]
+
+
+---
+#One-Tailed vs Two-Tailed
+<br>
+
+--
+count:false
+- Do we have a strong reason for a one-tailed? One-Tailed
+    - Ex: H_0 is "difference is less than or equal to 0"
+    - Need a strong reason
+
+<br>
+--
+count:false
+- Otherwise? Two-tailed
+    - Ex: H_0 is "there is no real difference between groups"
+    - More conservative
+    - Usually a better choice
+
+
+---
+#One-Tailed Test
+<br>
+
+.smaller[
+```python
+sum(np.array(rand_mean_diffs) >= observed_metric) / len(rand_mean_diffs)
+```
+```
+0.1311
+```]
+
+--
+count:false
+Note that this is less than our Two-Tailed value!
+
+
+---
+#Choosing $\alpha$
+
+--
+count:false
+- **alpha ($\alpha$):** significance level
+    - What we'll compare our p-value to
+    - Best to choose this before calculating metrics
+    - Probability of rejecting the null when it is true (Type I Error)
+
+--
+count:false
+- Usually .05 (Error 1 out of 20 times)
+
+
+--
+count:false
+- .01 (Error 1 out of 100 times)
+
+
+--
+count:false
+- .1 (Error 1 out of 10 times)
+
+
+--
+count:false
+- Depends on how bad a Type I (False Positive) Error is
+
+
+---
+#Another Ex: Price vs Conversion
+
+- Does Price A lead to higher conversions than Price B?
+- **Conversion:** Turning a visit into a sale
+
+
+--
+count:false
+- $H_0$: conversions for Price A &le; conversions for Price B
+- $H_1$: conversions for Price A &gt; conversions for Price B
+
+
+--
+count:false
+```python
+df = pd.DataFrame({'Price A':[200,23539],
+                   'Price B':[182,22406]},
+                   index=['Conversion','No Conversion'])
+df
+```
+```
+             Price A Price B
+Conversion       200     182
+No Conversion  23539   22406
+```
+
+
+---
+#Another Ex: Price vs Conversion
+- Metric of Interest? difference in percent conversion
+
+--
+count:false
+```python
+pct_conv = df.loc['Conversion'] / df.sum(axis=0) * 100
+pct_conv
+```
+```
+Price A    0.842495
+Price B    0.805738
+dtype: float64
+```
+--
+count:false
+```python
+diff_pct_conv = pct_conv['Price A'] - pct_conv['Price B']
+print('{:.4f}'.format(diff_pct_conv))
+```
+```
+0.0368
+```
+
+---
+#Another Ex: Price vs Conversion
+
+--
+count:false
+- First: Choose our $\alpha$: 0.05
+
+
+--
+count:false
+- Reminder of Permutation Test:
+--
+count:false
+
+    0. get group sizes
+    1. combine groups together
+    2. permute observations
+    3. grab two new samples (same sizes as originals)
+    4. calculate metric
+    5. repeat many times
+    6. see where our original observation falls
+
+---
+#Another Ex: Price vs Conversion
+
+- What are our samples?
+
+   -  1 = Conversion
+   -  0 = No conversion
+
+--
+count:false
+- How many samples are there?
+```python
+n = df.sum().sum()
+n
+```
+46327
+
+
+---
+#Another Ex: Price vs Conversion
+
+--
+count:false
+- Turning counts into samples
+
+--
+count:false
+.smaller[
+```python
+n_conversion = df.loc['Conversion'].sum()
+n_conversion
+```
+```
+382
+```]
+
+--
+count:false
+.smaller[
+```python
+samples = np.zeros(n)
+samples[:n_conversion] = 1  
+
+assert sum(samples) == n_conversion
+```]
+
+---
+#Another Ex: Price vs Conversion
+
+--
+count:false
+```python
+n_a, n_b = df.sum(axis=0)
+print(n_a, n_b)
+
+assert n_a + n_b == n
+```
+```
+23739 22588
+```
+
+--
+count:false
+```python
+%%time
+rand_conv_diffs = []
+for i in range(1000):
+    permutation = np.random.permutation(samples)
+    rand_conv_a = sum(permutation[:n_a]) / n_a
+    rand_conv_b = sum(permutation[n_a:]) / n_b
+    rand_conv_diffs.append(100 * (rand_conv_a - rand_conv_b))
+```
+```
+CPU times: user 10.8 s, sys: 35.6 ms, total: 10.9 s
+Wall time: 10.9 s
+```
+
+---
+#Another Ex: Price vs Conversion
+
+.smaller[
+```python
+ax = sns.distplot(rand_conv_diffs, norm_hist=False, kde=False)
+ax.vlines(diff_pct_conv, *ax.get_ylim(), color='r');
+```]
+.center[![:scale 35%](images/conversion_permutation_distplot.png)]
+
+.smaller[
+```python
+sum(np.array(rand_conv_diffs)) >= np.abs(diff_pct_conv) / len(rand_conv_diffs)
+```
+```
+0.373 
+```]
+
+---
+# t-Test: Equation Based
+
+- based on the Student-t distribution
+- more involved to describe
+- works for numeric data
+
+.smaller[
+```python
+# using our session_times example
+t = sp.stats.ttest_ind(session_times[session_times.Page == 'Page A'].Time.values,
+                       session_times[session_times.Page == 'Page B'].Time.values,
+                       equal_var=False)
+t.pvalue
+```
+```
+0.28152437245700607
+```]
+
+---
+# How many observations?
+
+- **Common question:** How many observations do we need?
+
+--
+count:false
+- These 4 things are related:
+--
+count:false
+    - **effect size:** Min size of effect you want to detect 
+        - Ex: "%10 increase in clicks"
+--
+count:false
+    - **power**: Prob. of detecting given effect size with given sample size 
+        - $P(\text{reject } H_0 \mid H_1 \text{ true})$
+--
+count:false
+    - **alpha**: significance level at which to reject the null
+        - $p(\text{reject }H_0 \mid H_0 \text{ true})$
+--
+count:false
+    - **number of observations:** usually what we're interested in finding
+
+
+--
+count:false
+- Knowing 3 gets you the 4th
+
+---
+# How many observations?
+.smaller[
+```python
+from statsmodels.stats.power import tt_ind_solve_power
+```]
+--
+count:false
+.smaller[
+```python
+# choose one to set as None
+x = tt_ind_solve_power(effect_size=.05, # diff between means divided by std dev
+                       nobs1=None,
+                       alpha=.05,       # type 1 error
+                       power=.95,       # 1 - type 2 error
+                       ratio=1          # n_a : n_b
+                  )
+print(f'num observations needed: {np.ceil(x)}')
+```
+```
+num observations needed: 10397.0
+```]
+
+---
+# How many observations?
+
+What happens to our power if we can only get 1000 observations?
+--
+count:false
+.smaller[
+```python
+x = tt_ind_solve_power(effect_size=.05, # diff between means divided by std dev
+                       nobs1=1000,
+                       alpha=.05,       # type 1 error
+                       power=None,       # 1 - type 2 error
+                       ratio=1          # n_a : n_b
+                  )
+print(f'power: {x:0.2f}')
+```
+```
+power: 0.20
+```]
+
+---
+# Things to avoid
+
+<br>
+--
+count:false
+- **p-hacking:** keep trying comparisons till you find something that works
+
+<br>
+--
+count:false
+- **multiple tests:** the more tests you run, the more likely a Type 1 Error
+    - Bonferonni correction: $\frac{\alpha}{m}$
+
+---
+# More Than 2 Groups
+
+--
+count:false
+- ANOVA
+    - need more stats than we have time for
+
+--
+count:false
+- Multi-Armed Bandit (MAB)
+    - can also be used for early stopping of experiment
+
+---
+#Multi-Armed Bandit
+
+.center[![:scale 60%](images/slot_machines.jpg)]
+
+--
+count:false
+**Question:** Which arm should we choose to pull?
+
+---
+# Greedy MAB
+
+--
+count:false
+**greedy:** do something simple that heads towards the goal
+
+
+--
+count:false
+1. pull best arm
+
+---
+# Exploration vs Exploitation
+
+<br>
+--
+count:false
+- **Exploration:** There might be a better arm
+    - keep choosing different arms randomly
+
+<br>
+--
+count:false
+- **Exploitation:** We want to make use of the best
+    - keep pulling the best arm
+
+
+---
+# $\epsilon$-Greedy MAB
+
+--
+count:false
+**greedy:** do something simple that heads towards the goal
+--
+count:false
+- choose a small epsilon ($\epsilon$) between 0 and 1
+
+--
+count:false
+1. generate random number between 0 and 1
+--
+count:false
+1. if $\lt \epsilon$, choose arm randomly
+--
+count:false
+1. if $\ge \epsilon$, choose best arm
+--
+count:false
+1. GOTO 1
 
 ---
 class:middle
