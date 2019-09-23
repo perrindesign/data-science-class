@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visualization and Hypothesis Testing</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Visualization And Hypothesis Testing
+
+09/23/2019
+
+---
+# TODOs
+<br/>
+
+--
+count: false
+- Seaborn tutorial: Plotting functions (https://seaborn.pydata.org/tutorial.html)
+--
+count: false
+- Practical Statistics for Data Scientists, Chapter 3 ([via Safari](https://ezproxy.cul.columbia.edu/login?qurl=https%3a%2f%2fsearch.ebscohost.com%2flogin.aspx%3fdirect%3dtrue%26db%3dnlebk%26AN%3d1517577%26site%3dehost-live%26scope%3dsite&ebv=EB&ppid=pp_79))
+
+--
+count: false
+- Answer and submit Quiz 3
+--
+count: false
+- HW1?
+
+---
+# Today
+<br/>
+
+--
+count:false
+- Finish up Viz
+
+--
+count:false
+- Stats Review
+
+--
+count:false
+- Hypothesis Testing
+
+--
+count:false
+- AB Testing?
+
+--
+count:false
+- Multi-Armed Bandit?
+
+
+---
+#Matplotlib
+<br>
+
+Matplotlib is a Python 2D plotting library which produces publication quality figures in a variety of hardcopy formats and interactive environments across platforms.
+
+<br><br>
+.center[
+![](images/matplotlib_logo.png)]
+
+
+---
+# Matplotlib: Import and Configure
+<br>
+
+.center[
+![](images/matplotlib_notebook_import.png)]
+
+---
+# Matplotlib MATLAB style
+
+--
+count:false
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+```
+
+--
+count:false
+```python
+x = np.linspace(0,10,1000)                                              
+```
+
+--
+count:false
+```python
+fig = plt.figure()
+```
+--
+count:false
+```python
+plt.plot(x,np.sin(x));                                                  
+```
+
+--
+count:false
+```python
+#plt.show(); shouldn't need this
+```
+
+--
+count:false
+```python
+plt.savefig('sin_of_x.png')    
+```
+
+---
+# Matplotlib Figure
+
+.center[
+![](images/sin_of_x.png)]
+
+---
+# Matplotlib Modify Figure
+
+.smaller[
+```python
+plt.title('Sine of x')
+plt.xlabel('x')
+plt.ylabel('sin(x)')
+```]
+.center[
+![:scale 50%](images/sine_of_x_withlabels.png)]
+
+
+
+---
+# Matplotlib Figure + Axes
+.smaller[
+```python
+fig,ax = plt.subplots(1,1,figsize=(4,3));
+```]
+
+--
+count:false
+
+.smaller[
+```python
+ax.plot(x,np.sin(x));
+ax.set_title('Sine of X');
+ax.set_xlabel('x');
+ax.set_ylabel('sin(x)');
+fig.tight_layout()   
+```]
+.center[
+![:scale 40%](images/sine_of_x_small.png)]
+
+---
+# Matplotlib Multiple Plots
+.smaller[
+```python
+fig,ax = plt.subplots(1,1,figsize=(4,3));
+ax.plot(x,np.sin(x),label='sin(x)');
+ax.plot(x,np.cos(x),label='cos(x)');
+ax.legend(loc='best')
+```]
+.center[
+![:scale 40%](images/sin_cos_singleplot.png)]
+
+---
+# Matplotlib Subplots
+.smaller[
+```python
+fig,ax = plt.subplots(1,2,figsize=(8,3));
+ax[0].plot(x,np.sin(x),color='red',linestyle=':')
+ax[0].set_title('Sine of x');
+ax[1].plot(x,np.cos(x),color='black',linestyle='-.')
+ax[1].set_title('Cosine of x');
+```]
+.center[
+![:scale 80%](images/sin_cos_doubleplot.png)]
+
+---
+# Matplotlib Axis Limits
+.smaller[
+```python
+fig,ax = plt.subplots(1,1,figsize=(4,3))
+ax.plot(x,np.sin(x))
+ax.set_xlim(-.1,4)
+ax.set_ylim(0,1.1)
+```]
+.center[
+![:scale 50%](images/sin_xylim.png)]
+
+---
+# Matplotlib Command Review
+
+- plt.figure()
+- plt.subplots()
+- ax.plot()
+- ax.set_title()
+- ax.set_xlabel(), ax.set_ylabel()
+- ax.set_xlim(), ax.set_ylim()
+- ax.get_xlim(), ax.get_ylim()
+- ax.legend()
+- fig.savefig()
+
+<br>
+- [Matplotlib Cheetsheet](https://s3.amazonaws.com/assets.datacamp.com/blog_assets/Python_Matplotlib_Cheat_Sheet.pdf)
+
+
+---
+class:middle
+
+# Questions re Matplotlib?
+
+
+---
+# Yellowcab Dataset
+
+Records of Yellowcab Taxi trips from January 2017.
+
+more info: http://www.nyc.gov/html/tlc/html/about/trip_record_data.shtml
+
+<br>
+We'll use a random subset of the full dataset:
+.smaller[
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(123)
+
+datafile = 'https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2017-01.csv'
+df = pd.read_csv(datafile,parse_dates=True)
+df = df.iloc[np.random.permutation(len(df))[:10000],:]
+df.to_csv('../data/yellow_tripdata_2017-01_subset10000rows.csv')
+```
+]
+
+---
+# Load First 1000 Rows of the Dataset
+
+.smallest[
+```python
+df = pd.read_csv('../data/yellow_tripdata_2017-01_subset10000rows.csv',
+                 parse_dates=['tpep_pickup_datetime','tpep_dropoff_datetime'],
+                 nrows=1000)
+df.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1000 entries, 0 to 999
+Data columns (total 17 columns):
+VendorID                 1000 non-null int64
+tpep_pickup_datetime     1000 non-null datetime64[ns]
+tpep_dropoff_datetime    1000 non-null datetime64[ns]
+passenger_count          1000 non-null int64
+trip_distance            1000 non-null float64
+RatecodeID               1000 non-null int64
+store_and_fwd_flag       1000 non-null object
+PULocationID             1000 non-null int64
+DOLocationID             1000 non-null int64
+payment_type             1000 non-null int64
+fare_amount              1000 non-null float64
+extra                    1000 non-null float64
+mta_tax                  1000 non-null float64
+tip_amount               1000 non-null float64
+tolls_amount             1000 non-null float64
+improvement_surcharge    1000 non-null float64
+total_amount             1000 non-null float64
+dtypes: datetime64[ns](2), float64(8), int64(6), object(1)
+memory usage: 132.9+ KB
+```]
+
+
+---
+# Extract and Engineer Columns
+
+--
+count:false
+.smaller[
+```python
+df = df[['tpep_pickup_datetime','tpep_dropoff_datetime',
+         'trip_distance','fare_amount','tip_amount']]
+```]
+
+--
+count:false
+.smaller[
+```python
+df['trip_duration'] = (df.tpep_dropoff_datetime -
+                       df.tpep_pickup_datetime).dt.seconds
+```]
+
+--
+count:false
+.smaller[
+```python
+df.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1000 entries, 0 to 999
+Data columns (total 6 columns):
+tpep_pickup_datetime     1000 non-null datetime64[ns]
+tpep_dropoff_datetime    1000 non-null datetime64[ns]
+trip_distance            1000 non-null float64
+fare_amount              1000 non-null float64
+tip_amount               1000 non-null float64
+trip_duration            1000 non-null int64
+dtypes: datetime64[ns](2), float64(3), int64(1)
+memory usage: 47.0 KB
+```]
+
+---
+# Generate Summary Stats and Visualizations
+
+--
+count:false
+- Central tendencies
+
+--
+count:false
+- Spread of data
+
+--
+count:false
+- Distributions
+
+--
+count:false
+- Correlations
+
+---
+#Exploring Central Tendencies: Mean
+
+--
+count:false
+- Sample Mean
+.center[$\Large \bar{x} = \frac{1}{n} \sum x_i$]
+
+--
+count:false
+```python
+df.trip_duration.mean()
+784.191
+```
+
+--
+count:false
+- Mean is sensitive to *outliers*
+
+--
+count:false
+- **Outlier:** a data point that differs significantly from other observations
+    - data error
+    - heavy tailed distribution
+
+
+---
+#Exploring Central Tendencies: Median
+
+--
+count:false
+- Median
+    - Divides sorted dataset into two equal sizes
+    - 50% of the data is less than the median
+
+--
+count:false
+```python
+df.trip_duration.median()
+630.5
+```
+
+--
+count:false
+- Median is *robust* to outliers
+--
+count:false
+- **Robust:** Not affected by outliers
+
+
+---
+#Exploring Spread: Variance
+
+--
+count:false
+- Sample Variance
+.center[$\Large s^2 = \frac{\sum(x-\bar{x})^2}{n-1}$]
+
+--
+count:false
+```python
+df.trip_duration.var()
+328246.59311211214
+```
+--
+count:false
+- But this is in $seconds^2$!
+
+
+---
+#Exploring Spread: Standard Deviation
+
+--
+count:false
+- Sample Standard Deviation
+.center[$\Large s = \sqrt{\frac{\sum(x-\bar{x})^2}{n-1}}$]
+
+--
+count:false
+
+```python
+df.trip_duration.std()
+572.928087208257
+```
+--
+count:false
+- This is in the original scale
+
+--
+count:false
+- Sensitive to outliers!
+
+
+---
+#Exploring Spread: IQR
+
+--
+count:false
+- Quartiles
+--
+count:false
+    - 25% of data is &le; first quartile, 25th percentile
+--
+count:false
+    - 50% of data is &le; second quartile, 50th percentile (Median)
+--
+count:false
+    - 75% of data is &le; third quartile, 75th percentile
+
+--
+count:false
+- **Interquartile Range (IQR)**
+    - (third quartile - first quartile) or (75th percentile - 25th percentile)
+
+--
+count:false
+- Can find quartiles with: pandas quantile or numpy percentile
+
+--
+count:false
+.smaller[
+```python
+df.trip_duration.quantile(.75) - df.trip_duration.quantile(.25)
+634.5
+```
+]
+
+--
+count:false
+- IQR is robust to outliers
+
+
+---
+# Exploring Spread: Skew
+
+--
+count:false
+- Skewness
+    - measures assymetry of distribution around mean
+    - indicates tail to left (neg) or right (pos)
+
+--
+count:false
+```python
+df.trip_duration.skew()
+1.8838184334687227
+```
+
+---
+# Univariate Distribution: Histogram
+
+.smallest[
+```python
+df.trip_duration.plot.hist()
+plt.xlabel('trip_duration (seconds)')
+```]
+.center[![:scale 55%](images/trip_duration_hist_bins10.png)]
+
+---
+# Univariate Distribution: Histogram
+
+.smallest[
+```python
+df.trip_duration.plot.hist(bins=100)
+plt.xlabel('trip_duration (seconds)')
+```]
+.center[![:scale 55%](images/trip_duration_hist_bins100.png)]
+
+---
+# Univariate Distribution: Histogram
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(8,4));
+df.trip_duration.plot.hist(bins=100,ax=ax);
+ax.set_xlabel('trip_duration (seconds)');
+ax.vlines(df.trip_duration.mean(),*ax.get_ylim(),color='r');
+ax.text(df.trip_duration.mean()+12,ax.get_ylim()[1]/1.5,'mean');
+```]
+.center[![](images/trip_duration_hist_bins100_annotated.png)]
+
+
+---
+# Univariate Distribution: Histogram
+.smallest[
+```python
+fig,ax = plt.subplots(1,2,figsize=(12,4))
+df[df.tpep_pickup_datetime.dt.hour %lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
+ax[0].set_xlabel('trip_duration (seconds)');
+ax[0].set_title('Trips Before Noon');
+df[df.tpep_pickup_datetime.dt.hour %gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
+ax[1].set_xlabel('trip_duration (seconds)');
+ax[1].set_title('Trips After Noon');
+```]
+.center[![:scale 95%](images/trip_duration_hist_bins100_beforeafternoon.png)]
+
+---
+# Univariate Distribution: Histogram
+.smallest[
+```python
+*fig,ax = plt.subplots(1,2,figsize=(12,4), sharex=True, sharey=True)
+df[df.tpep_pickup_datetime.dt.hour %lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
+ax[0].set_xlabel('trip_duration (seconds)');
+ax[0].set_title('Trips Before Noon');
+df[df.tpep_pickup_datetime.dt.hour %gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
+ax[1].set_xlabel('trip_duration (seconds)');
+ax[1].set_title('Trips After Noon');
+```]
+.center[![:scale 95%](images/trip_duration_hist_bins100_beforeafternoon_sharexy.png)]
+    
+
+---
+# Plotting with Seaborn
+
+<br>
+Seaborn is a Python data visualization library based on matplotlib. It provides a high-level interface for drawing attractive and informative statistical graphics.
+
+<br>
+.center[
+![:scale 90%](images/seaborn_examples.png)]
+
+<br>
+--
+count:false
+```python
+import seaborn as sns
+```
+
+---
+# Seaborn Distplot
+
+```python
+sns.distplot(df.trip_duration);
+```
+.center[
+![:scale 55%](images/trip_duration_distplot.png)]
+
+---
+# Seaborn Distplot
+
+```python
+sns.distplot(df.trip_duration, rug=True);
+```
+.center[
+![:scale 55%](images/trip_duration_distplot_rug.png)]
+
+
+---
+# Seaborn Styles
+
+```python
+with sns.axes_style('darkgrid'):
+    sns.distplot(df.trip_duration, rug=True);
+```
+.center[
+![:scale 55%](images/trip_duration_distplot_rug_darkgrid.png)]
+
+---
+# Seaborn Styles
+
+Set style globally
+
+```python
+sns.set_style('darkgrid');
+```
+
+---
+# Seaborn: Multiple Plots
+
+.smallest[
+```python
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &lt; 12].trip_duration, label='before noon');
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &gt;= 12].trip_duration, label='after noon');
+plt.legend();
+```]
+.center[
+![:scale 55%](images/trip_duration_distplot_beforeafternoon.png)]
+
+---
+# Distplot Without KDE
+
+.smallest[
+```python
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &lt; 12].trip_duration, label='before noon',
+             norm_hist=False, kde=False
+            );
+sns.distplot(df[df.tpep_pickup_datetime.dt.hour &gt;= 12].trip_duration, label='after noon',
+             norm_hist=False, kde=False,
+            );
+plt.legend();
+```]
+.center[
+![:scale 45%](images/trip_duration_distplot_beforeafternoon_nokde.png)]]
+
+
+---
+# Aside: KDE
+
+--
+count:false
+- KDE: Kernel Density Estimation
+
+.center[![:scale 50%](images/kde2.png)![:scale 50%](images/kde3.png)]
+
+--
+count:false
+- For a good explanation of how it's used for plotting see: [seaborn docs](https://seaborn.pydata.org/tutorial/distributions.html)
+
+
+
+---
+# Univariate Distributions: Boxplot
+
+```python
+sns.boxplot(df.trip_duration)
+```
+.center[
+![](images/trip_duration_boxplot.png)]
+
+---
+# Univariate Distributions: Boxplot
+.center[
+![:scale 40%](images/trip_duration_boxplot.png)]
+--
+count:false
+
+- first quartile
+--
+count:false
+- second quartile (Median)
+--
+count:false
+- third quartile
+--
+count:false
+- whiskers (usually 1.5*IQR)
+--
+count:false
+- outliers
+
+---
+# Univariate Distributions: Other
+
+```python
+fig,ax = plt.subplots(1,2,figsize=(8,3))
+sns.distplot(df.trip_duration, ax=ax[0]);
+sns.boxplot(df.trip_duration, ax=ax[1]);
+```
+.center[
+![](images/trip_duration_distplot_boxplot.png)]
+
+---
+# Univariate Distributions: Other
+.smaller[
+```python
+fig,ax = plt.subplots(1,4,figsize=(16,4),sharey=True)
+sns.stripplot(x='before_noon',y='trip_duration',data=df,ax=ax[0])
+sns.boxplot(x='before_noon',y='trip_duration',data=df,ax=ax[1])
+sns.violinplot(x='before_noon',y='trip_duration',data=df,ax=ax[2])
+sns.swarmplot(x='before_noon',y='trip_duration',data=df,ax=ax[3])
+```]
+.center[![:scale 100%](images/compare_dist_plots.png)]
+
+
+---
+class:middle
+
+# Questions?
+
+---
+#Bivariate: Evaluating Correlation
+
+
+--
+count:false
+- Correlation: the degree to which two variables are linearly related
+
+--
+count:false
+- Pearson Correlation Coefficient:
+$\rho_{XY} = \frac{cov(X,Y)}{\sigma_X\sigma_Y}$
+
+--
+count:false
+- Sample Correlation:
+$r = \frac{\sum (x_i - \bar{x})(y_i - \bar{y})}{(n-1)s_xs_y}$
+
+
+--
+count:false
+
+.smaller[
+- Takes values
+ - -1 (highly negatively correlated)
+ - 0 (not correlated)
+ - 1 (highly positively correlated)
+]
+
+--
+count:false
+
+```python
+from scipy.stats import pearsonr
+r,p = pearsonr(df.trip_duration, df.trip_distance)
+r
+0.7638445461887332
+```
+
+
+---
+# Bivariate: Scatterplot
+
+.smaller[
+```python
+sns.scatterplot(x='trip_duration',y='trip_distance',data=df,alpha=0.5);
+```]
+.center[![](images/trip_duration_trip_distance_scatter.png)]
+
+---
+# Bivariate: Add Regression Line
+
+```python
+sns.lmplot(x='trip_duration',y='trip_distance',data=df);
+```
+.center[![:scale 45%](images/trip_duration_trip_distance_lmplot.png)]
+
+---
+# Bivariate: Add Histograms
+
+```python
+sns.jointplot(x='trip_duration',y='trip_distance',data=df,alpha=0.5)
+```
+.center[![:scale 45%](images/trip_duration_trip_distance_jointplot.png)]
+
+---
+# Bivariate: Use KDE
+.smallest[
+```python
+sns.jointplot(x='trip_duration', y='trip_distance',
+              data=df[(df.trip_duration &lt; 1800) &amp; (df.trip_distance &lt; 5)],
+              kind='kde');
+```]
+.center[![:scale 40%](images/trip_duration_trip_distance_jointplot_kde.png)]
+
+---
+# Comparing Multiple Variables
+```python
+sns.pairplot(df[['trip_duration','trip_distance','tip_amount']]);
+```
+.center[![:scale 45%](images/trip_pairplot.png)]
+
+
+---
+# Categorical Variables
+
+--
+count:false
+Converting a real valued variable to categorical via Binning
+
+--
+count:false
+.smaller[
+```python
+def map_trip_duration_to_category(x):
+    if x &lt; 5*60:
+        return 'short'
+    elif x &lt; 20*60:
+        return 'medium'
+    else:
+        return 'long'
+```]
+
+--
+count:false
+.smaller[
+```python
+df['trip_duration_category'] = df.trip_duration.apply(map_duration_to_category)
+```]
+
+---
+#Plotting Frequency: Bar Chart
+
+```python
+df.trip_duration_category.value_counts().plot.bar()
+```
+
+.center[![](images/trip_duration_barchart.png)]
+
+---
+#Plotting Real and Categorical
+
+.smaller[
+```python
+sns.catplot(x='trip_duration_category',y='tip_amount',data=df,kind='bar')
+```]
+.center[![:scale 45%](images/tripdurationcat_tipamount_catplot_bar.png)]
+
+---
+#Adding Another Categorical
+
+.smaller[
+```python
+df['day_of_week'] = df.tpep_pickup_datetime.dt.dayofweek
+
+sns.catplot(x='day_of_week',y='tip_amount',hue='trip_duration_category',
+            data=df,kind='box',aspect=2)
+```]
+
+.center[![:scale 80%](images/tripdurationcat_tipamount_dayofweek_catplot_box.png)]
+
+
+---
+#Data Exploration and Viz
+
+--
+count:false
+- central tendencies: mean, median
+--
+count:false
+- spread: variance, std deviation, IQR
+--
+count:false
+- correlation: pearson correlation coefficient
+--
+count:false
+- plotting real valued variables: hist, scatter, distplot, lmplot
+--
+count:false
+- plotting categorical variables: bar
+--
+count:false
+- plotting interactions: jointplot, pairplot, catplot
+
+---
+class:middle
+
+# Questions re Viz?
+
+---
+# Hypothesis Testing
+
+--
+count:false
+- Random Sampling
+--
+count:false
+- Confidence Intervals
+--
+count:false
+- A/B Tests
+--
+count:false
+- Hypothesis Testing
+--
+count:false
+- Permutation Tests
+--
+count:false
+- p-values
+--
+count:false
+- Calculating Power
+--
+count:false
+- Multi-Armed Bandit
+
+---
+# Questions and more questions
+
+--
+count:false
+- Have web conversions gone up?
+--
+count:false
+- Have stock prices changed?
+--
+count:false
+- Which ad generates more sales?
+--
+count:false
+- Which headline generates more clicks?
+--
+count:false
+- Did the number of likes change?
+
+---
+#Population Distributions and Sampling
+
+<br/>
+--
+count:false
+- **The World :: Ground Truth**
+    - Ex: How taxi rides work
+
+<br/>
+--
+count:false
+- **Our Data :: An Experiment**
+    - Ex: The taxi rides we saw in Jan 2017
+
+---
+#Population Dists. and Sampling
+<br>
+--
+count:false
+- **Population Distribution:** The actual distribution out in world
+    - Ex: Actual distribution of taxi trip length
+
+--
+count:false
+- **Random Sample:** Our observations of the true population distrution 
+--
+count:false
+    - We hope this does not differ systematically from the true distribution
+--
+count:false
+    - Ex: The taxi trip lengths recorded in Jan 2017
+
+--
+count:false
+- **Sample Size (n):** The number of observations, the larger the better
+    - Ex: We saw 10,000 trips
+
+---
+#Population Dists and Sampling
+<br>
+--
+count:false
+- **Sample Statistic:** eg. mean, median, standard deviation
+    - Ex: We're interested in mean trip length
+
+--
+count:false
+- **Sampling Distribution:** Distribution of the sample statistic
+    - Ex: How is mean trip length distributed?
+
+--
+count:false
+- **Population Mean vs. Sample Mean:**  $\mu$  vs.  $\bar{x}$
+    - Ex: The true mean trip length vs the one we observed
+
+--
+count:false
+- **Population Std. Dev. vs Sample Std. Dev.:**  $\sigma$  vs.  $s$
+    - Ex: The true spread of trip length vs the one we observed
+
+
+---
+# Things To Know First
+
+- sample size
+- shape
+- location (central tendencies)
+- spread
+
+
+---
+# Taxi Example
+
+```python
+df = pd.read_csv('../data/yellow_tripdata_2017-01_subset10000rows.csv')
+
+# imagine this is our population distribution
+trip_distance = df.trip_distance.dropna().iloc[:1000]
+```
+
+---
+# Sample of Taxi Data
+.smaller[
+```python
+# sample size
+n = 50
+
+# take a sample from the population
+idx = np.random.permutation(len(trip_distance))
+
+sample_idx = idx[:n]
+
+sample = trip_distance.iloc[sample_idx]
+sample.describe()
+```]
+.smaller[
+```
+count    50.000000
+mean      2.619600
+std       3.363321
+min       0.200000
+25%       0.957500
+50%       1.450000
+75%       2.475000
+max      15.940000
+Name: trip_distance, dtype: float64
+```]
+
+---
+# Plot Sample
+
+```python
+fig,ax = plt.subplots(1,2,figsize=(12,4))
+sns.distplot(sample, kde=False, rug=True, ax=ax[0]);
+sns.boxplot(sample, ax=ax[1]);
+```
+.center[![:scale 100%](images/tripdistance_distplot.png)]
+
+
+---
+# Define the Sample Statistic
+
+```python
+xbar = sample.mean()
+f'sample mean: {xbar:0.2f}'
+```
+```
+'sample mean: 2.62'
+```
+
+--
+count:false
+- How good of an approximation is our sample statistic?
+--
+count:false
+- Let's take more samples!
+
+---
+# Generating Samples
+
+```python
+sample_means = []
+for i in range(1000):
+    idx = np.random.permutation(len(trip_distance))
+    sample_means.append(trip_distance.iloc[idx[:n]].mean())
+```
+
+---
+# Sampling Distribution
+.smaller[
+```python
+# sampling distribution with original statistic
+ax = sns.distplot(sample_means, kde=False)
+ax.set_xlabel('sample_means');
+ax.set_ylabel('frequency');
+ax.vlines(xbar,*ax.get_ylim());
+```]
+.center[![:scale 50%](images/tripdistance_samplemeans_distplot.png)]
+
+
+---
+# Central Limit Theorem
+
+<br>
+--
+count:false
+If all samples are randomly drawn from the same sample population:
+
+<br>
+--
+count:false
+For reasonably large samples (usually $n \ge 30$), the distribution of sample mean $\bar{x}$ is normal regardless of the distribution of $X$.
+
+<br>
+--
+count:false
+The sampling distribution of $\bar{x}$ becomes approximately normal as the the sample size $n$ gets large.
+
+<br>
+Ex: $X$ = trip_distance, $\bar{x}$ = mean trip_distance, $n$ = 50
+
+---
+# What is Normal?
+
+<br>
+--
+count:false
+- distribution defined by mean ($\mu$) and standard deviation ($\sigma$)
+
+<br>
+--
+count:false
+- $N(x;\mu,\sigma) = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{1}{2\sigma}{(x-\mu)}^2}$
+
+<br>
+--
+count:false
+- **PDF** (Probability Density Function): function of a continuous random variable that provides a relative likelihood of seeing a particular sample of a random variable.
+
+
+<br>
+---
+# Plotting a Standard Normal
+
+.smaller[
+- Standard Normal: $\mu = 0, \sigma = 1$
+- Often referred to as $Z$
+]
+
+--
+count:false
+.smallest[
+```python
+x = np.random.normal(0,1,size=100000)
+ax = sns.distplot(x);
+ax.set_xlabel('x');ax.set_ylabel('N(x;0,1)')
+ax.vlines([-1,1],0,sp.stats.norm.pdf(1), colors='k');
+ax.vlines([-2,2],0,sp.stats.norm.pdf(2), colors='r');
+```]
+.center[![:scale 40%](images/normal_distplot.png)]
+
+
+---
+# Properties of a Standard Normal
+
+.center[
+![:scale 60%](images/standard-normal-distribution.jpg)]
+
+.smallest[
+from http://www.statisticshowto.com/wp-content/uploads/2013/09/standard-normal-distribution.jpg]
+
+---
+# Confidence Intervals
+
+- Typically we only have one sample
+
+--
+count:false
+.smaller[
+```python
+# treat all observations as our sample
+n = len(trip_distance)
+n
+```
+```
+1000
+```]
+--
+count:false
+.smaller[
+```python
+x_bar = trip_distance.mean()
+print(f'sample mean: {x_bar:0.4f}')
+```
+```
+sample mean: 2.8324
+```]
+
+--
+count:false
+- What is the spread of our sample statistic?
+--
+count:false
+- What other values might it take?
+
+---
+# Generate Confidence Intervals
+
+## Bootstrap Confidence Interval: sampling with replacement
+
+--
+count:false
+1. draw a random sample of size *n* from the data
+--
+count:false
+2. record the sample statistic from this random sample
+--
+count:false
+3. repeat 1 and 2 many times
+--
+count:false
+4. for an $\alpha\%$ conf. int., trim off $\frac{1}{2}(1-\frac{\alpha}{100})$ of the data from both ends
+--
+count:false
+6. those trim points are the endpoints of the the $\alpha\%$ bootstrap confidence interval
+
+---
+# Bootstrap Sampling
+
+Sampling with replacement
+
+--
+count:false
+```python
+def generate_bootstrap(X, size=None):
+    # get the length of the data
+    len_X = len(X)
+
+    # default size of bootstrap is len(X)
+    if not size:
+        size = len_X
+
+    # resample from X size times
+    sample = []
+    for i in range(size):
+        idx = np.random.randint(len_X)
+        sample.append(X[idx])
+
+    return sample
+```
+
+---
+# Generating Bootstrap Samples
+```python
+# 3. repeat 1 and 2 many times
+num_iterations = 500
+
+bootstrap_means = []
+for i in range(num_iterations):
+
+    # 1. draw a random sample of size *n* from the data
+    bootstrap = generate_bootstrap(trip_distance.values)
+
+    # 2. record the sample statistic from this random sample
+    bootstrap_means.append(np.mean(bootstrap))
+
+bootstrap_means = np.array(bootstrap_means)
+```
+
+---
+# Calculate Conf Intervals
+
+.smaller[
+```python
+# 4. for an 95% conf. int., trim off .5*(1-(.95/100)) of the data from both ends
+```
+]
+.smaller[
+```python
+# sort the statistics
+bootstrap_means.sort()
+
+# calculate where to trim
+trim = ((1-.95) / 2) * num_iterations
+
+# find the closest integer
+trim = int(np.round(trim))
+trim
+```]
+.smaller[
+```
+13
+```]
+
+.smaller[
+```python
+# 5. those trim points are the endpoints of the the  \alpha%  bootstrap conf int
+ci = bootstrap_means[[trim,-trim]]
+ci
+```]
+.smaller[
+```
+array([2.62839, 3.04472])
+```]
+
+---
+# Plotting Distribution With CIs
+
+.smaller[
+```python
+ax = sns.distplot(bootstrap_means)
+ax.set_xlabel('bootstrap sample means')
+ax.vlines(trip_distance.mean(), \*ax.get_ylim(), color='r');
+ax.vlines(ci, *ax.get_ylim(), color='b');
+```]
+.center[![:scale 50%](images/tripdistance_bootstrap_distplot_withconfints.png)]
+
+---
+# Plot Measure with CIs
+
+```python
+sns.barplot(trip_distance,
+            estimator=np.mean, #default
+            ci=95,             #default
+            n_boot=100,        #default
+            orient='v',
+            color='c',
+           );
+```
+.center[![](images/tripdistance_bootstrap_bar_withconfints.png)]
+
+
+---
+# Interpreting CIs
+<br>
+
+--
+count:false
+Tells us something about the **variablity** of this statistic.
+
+--
+count:false
+Tells us how **confident** we should be that our parameter lies in the interval.
+
+--
+count:false
+It does **not** tell us "the probability the true parameter value lies within that interval".
+
+--
+count:false
+> If confidence intervals are constructed using a given confidence level from an infinite number of independent sample statistics, the proportion of those intervals that contain the true value of the parameter will be equal to the confidence level.
+
+---
+class:middle
+
+# Questions re CIs?
+
+---
+# A/B Tests
+<br>
+
+--
+count:false
+##Do one of two treatments produce superior results?
+
+
+--
+count:false
+- testing two prices to determine which generates more profit
+ 
+
+--
+count:false
+- testing two web headlines to determine which produces more clicks
+
+
+--
+count:false
+- testing two advertisements to see which produces more conversions
+
+<br>
+--
+count:false
+##Often Used Test Statistics
+--
+count:false
+- difference in means
+--
+count:false
+- difference in counts
+
+---
+# Hypothesis Testing
+
+
+--
+count:false
+- Ex: Does one webpage lead to more sales than another?
+
+
+--
+count:false
+- **Null Hypothesis:** $H_0$
+    - the thing we're observing is happening due to random chance
+    - Ex: A difference in sales is just random
+
+
+--
+count:false
+- **Alternative Hypothesis:** $H_1$
+    - the thing we're observing is happening **not** due to random chance
+    - Ex: A difference in sales is not just random
+
+
+--
+count:false
+- **Experiment**: given data, do we **accept or reject $H_0$**?
+    - Ex: if we collect sales can we say that a difference between the two pages isn't random?
+
+---
+# Errors in Hypothesis Tests
+.center[![:scale 80%](images/TypeI_TypeII.jpeg)]
+.smallest[
+from https://analyticsdemystified.com/analytics-strategy/type-i-vs-type-ii-errors-in-customer-data-management/]
+---
+
+# Errors in Hypothesis Tests
+.center[![](images/Type-I-and-II-errors_pregnant.jpg)]
+
+.smallest[
+from https://flowingdata.com/2014/05/09/type-i-and-ii-errors-simplified/]
+
+---
+# Significance and Power
+
+<br>
+--
+count:false
+- $p\left(\text{reject } H_0 \mid H_0 \text{ true}\right)$ = significance of test
+    - Probablity of saying things aren't by chance when they are
+
+<br>
+--
+count:false
+- $p\left(\text{reject } H_0 \mid H_1 \text{ true}\right)$ = power of test
+    - Probability of saying things aren't by chance when they aren't
+ 
+---
+# Ex: Webpages and Sales
+
+--
+count:false
+- **Question:** Which webpage leads to more sales?
+
+    - Potential Issue: what if sales are large but infrequent?
+    
+
+--
+count:false
+- **Proxy Variable**: stand in for true value of interest
+
+    - Ex: Assume 'time on page' is correlated with sales
+
+---
+# Ex: Webpages and Sales
+
+--
+count:false
+.smaller[
+```python
+session_times = pd.read_csv('../data/web_page_data.csv')
+session_times.info()
+```
+```
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 36 entries, 0 to 35
+Data columns (total 2 columns):
+Page    36 non-null object
+Time    36 non-null float64
+dtypes: float64(1), object(1)
+memory usage: 704.0+ bytes
+```
+```python
+session_times.head(3)
+```
+```
+	Page	Time
+0	Page A	12.6
+1	Page B	151.8
+2	Page A	21.0
+```]
+
+---
+# Ex: Plotting Distributions
+
+```python
+sns.boxplot(x='Page',y='Time',data=session_times);
+```
+.center[![:scale 60%](images/pagetime_boxplots.png)]
+
+---
+# Ex: Plotting Mean and CIs
+
+```python
+sns.barplot(x='Page',y='Time',data=session_times);
+```
+.center[![:scale 60%](images/pagetime_bar.png)]
+
+
+---
+# Ex: Define Metric
+
+--
+count:false
+- **Metric:** the measure we're interested in
+--
+count:false
+- Ex: We're interested in a difference of means (Page B - Page A)
+
+--
+count:false
+.smaller[
+```python
+mean_a = session_times[session_times.Page == 'Page A'].Time.mean()
+mean_b = session_times[session_times.Page == 'Page B'].Time.mean()
+
+observed_metric = mean_b-mean_a
+print('observed metric: {:0.2f}'.format(observed_metric))
+```
+```
+observed metric: 21.40
+```]
+
+
+--
+count:false
+## Is this significant?
+
+- Assuming that $H_0$ is true, is this observation surprising?
+
+
+---
+# Permutation Test
+
+--
+count:false
+- Recall Central Limit Theorem
+> For reasonably large samples, the distribution of sample mean $\bar{x}$ has is normal regardless of the distribution of $X$.
+
+--
+count:false
+- How do generate additional samples? Resampling!
+
+---
+# Permutation Test
+
+--
+count:false
+1. combine groups together (assume $H_0$ is true)
+    - Ex: Ignore Page 
+--
+count:false
+1. permute observations
+    - Ex: Reorder Time 
+--
+count:false
+1. create new groups and calcuate statistic (same sizes as originals)
+    - Ex: Get set1 of Times of size |PageA| and set2 of size |PageB|
+--
+count:false
+1. calculate metric
+    - Ex: mean(set 2) - mean(set 1)
+--
+count:false
+1. repeat many times
+--
+count:false
+1. see where our original observation falls
+
+---
+# Ex: Permutation Test
+
+--
+count:false
+.smaller[
+```python
+# 0. get group sizes
+n_a = sum(session_times.Page == 'Page A')
+n_b = sum(session_times.Page == 'Page B')
+```]
+
+--
+count:false
+.smaller[
+```python
+# 1. combine groups together (assume $H_0$ is true)
+samples = session_times.Time
+```]
+
+--
+count:false
+.smaller[
+```python
+# 2. permute observations
+permuted = np.random.permutation(session_times.Time)
+```]
+
+--
+count:false
+.smaller[
+```python
+# 3. calculate metric
+rand_mean_a = permuted[:n_a].mean()
+rand_mean_b = permuted[n_a:].mean()
+rand_mean_diff = (rand_mean_b - rand_mean_a)
+print('{:.2f}'.format(rand_mean_diff))
+```
+```
+65.04
+```]
+
+---
+# Ex: Permutation Test
+
+--
+count:false
+.smaller[
+```python
+# 4. repeat many times
+rand_mean_diffs = []
+for i in range(10000):
+    permuted = np.random.permutation(session_times.Time)
+    rand_mean_a = permuted[:n_a].mean()
+    rand_mean_b = permuted[n_a:].mean()
+    rand_mean_diffs.append(rand_mean_b - rand_mean_a)
+```
+```
+[6.17714285714284,
+ 0.14285714285712459,
+ -21.799999999999983,
+ -1.297142857142859,
+ -24.4742857142857,
+ 23.5257142857143,
+ 0.5542857142856832,
+ 21.81142857142858,
+ 30.588571428571427,
+ -3.079999999999984]
+```]
+
+---
+# Ex: Permutation Test
+
+```python
+# 5. see where our original observation falls
+ax = sns.distplot(rand_mean_diffs, norm_hist=False, kde=False)
+ax.set_xlabel('random mean differences');ax.set_ylabel('frequency');
+ax.vlines(observed_metric, *ax.get_ylim(), color='r');
+```
+.center[![:scale 50%](images/pagetime_permutation_test.png)]
+
+
+---
+#Normalization: z-score
+
+- Convert our distribution to an approximation of standard normal
+
+1. shift mean to 0
+2. standard deviation of 1
+
+$\Large z = \frac{x - \bar{x}}{s}$
+
+--
+count:false
+```python
+xbar = np.mean(rand_mean_diffs)
+s = np.std(rand_mean_diffs)
+```
+--
+count:false
+```python
+rand_zscores = (rand_mean_diffs - xbar) / s
+```
+
+--
+count:false
+```python
+observed_metric_zscore =  (observed_metric - xbar) / s 
+```
+
+---
+# Ex: Permutation Test
+
+.smaller[
+```python
+# 5. see where our original observation falls (normalized)
+ax = sns.distplot(rand_zscores, norm_hist=False, kde=False)
+ax.set_xlabel('random mean differences normed');ax.set_ylabel('frequency');
+ax.vlines(observed_metric_zscore, *ax.get_ylim(), color='r');
+```]
+.center[![:scale 55%](images/pagetime_permutation_test_normed.png)]
+
+
+---
+# Why Permutation Test?
+<br>
+
+--
+count:false
+- data can be numeric or binary
+
+
+--
+count:false
+- sample sizes can be different
+
+
+--
+count:false
+- assumptions about normally distributed data are not needed
+
+---
+class:middle
+
+# Questions?
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
