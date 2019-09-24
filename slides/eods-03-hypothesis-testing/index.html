@@ -375,10 +375,10 @@ count:false
 3. repeat 1 and 2 many times
 --
 count:false
-4. for an $\alpha\%$ conf. int., trim off $\frac{1}{2}(1-\frac{\alpha}{100})$ of the data from both ends
+4. for an $x\%$ conf. int., trim off $\frac{1}{2}(100-x)\%$ of the data from both ends
 --
 count:false
-6. those trim points are the endpoints of the the $\alpha\%$ bootstrap confidence interval
+6. those trim points are the endpoints of the the $x\%$ bootstrap confidence interval
 
 ---
 # Bootstrap Sampling
@@ -428,7 +428,7 @@ bootstrap_means = np.array(bootstrap_means)
 
 .smaller[
 ```python
-# 4. for an 95% conf. int., trim off .5*(1-(.95/100)) of the data from both ends
+# 4. for an 95% conf. int., trim off .5*(1-.95) of the data from both ends
 ```
 ]
 .smaller[
@@ -437,7 +437,7 @@ bootstrap_means = np.array(bootstrap_means)
 bootstrap_means.sort()
 
 # calculate where to trim
-trim = ((1-.95) / 2) * num_iterations
+trim = .5*(1-.95) * num_iterations
 
 # find the closest integer
 trim = int(np.round(trim))
@@ -450,7 +450,7 @@ trim
 
 .smaller[
 ```python
-# 5. those trim points are the endpoints of the the  \alpha%  bootstrap conf int
+# 5. those trim points are the endpoints of the the  alpha%  bootstrap conf int
 ci = bootstrap_means[[trim,-trim]]
 ci
 ```]

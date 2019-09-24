@@ -479,10 +479,10 @@ ax.text(df.trip_duration.mean()+12,ax.get_ylim()[1]/1.5,'mean');
 .smallest[
 ```python
 fig,ax = plt.subplots(1,2,figsize=(12,4))
-df[df.tpep_pickup_datetime.dt.hour %lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
+df[df.tpep_pickup_datetime.dt.hour &lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
 ax[0].set_xlabel('trip_duration (seconds)');
 ax[0].set_title('Trips Before Noon');
-df[df.tpep_pickup_datetime.dt.hour %gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
+df[df.tpep_pickup_datetime.dt.hour &gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
 ax[1].set_xlabel('trip_duration (seconds)');
 ax[1].set_title('Trips After Noon');
 ```]
@@ -493,10 +493,10 @@ ax[1].set_title('Trips After Noon');
 .smallest[
 ```python
 *fig,ax = plt.subplots(1,2,figsize=(12,4), sharex=True, sharey=True)
-df[df.tpep_pickup_datetime.dt.hour %lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
+df[df.tpep_pickup_datetime.dt.hour &lt; 12].trip_duration.plot.hist(bins=100,ax=ax[0]);
 ax[0].set_xlabel('trip_duration (seconds)');
 ax[0].set_title('Trips Before Noon');
-df[df.tpep_pickup_datetime.dt.hour %gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
+df[df.tpep_pickup_datetime.dt.hour &gt;= 12].trip_duration.plot.hist(bins=100,ax=ax[1]);
 ax[1].set_xlabel('trip_duration (seconds)');
 ax[1].set_title('Trips After Noon');
 ```]
