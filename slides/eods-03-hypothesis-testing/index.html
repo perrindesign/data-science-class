@@ -375,10 +375,10 @@ count:false
 3. repeat 1 and 2 many times
 --
 count:false
-4. for an $\alpha\%$ conf. int., trim off $\frac{1}{2}(1-\frac{\alpha}{100})$ of the data from both ends
+4. for an $x\%$ conf. int., trim off $\frac{1}{2}(100-x)\%$ of the data from both ends
 --
 count:false
-6. those trim points are the endpoints of the the $\alpha\%$ bootstrap confidence interval
+6. those trim points are the endpoints of the the $x\%$ bootstrap confidence interval
 
 ---
 # Bootstrap Sampling
@@ -428,7 +428,7 @@ bootstrap_means = np.array(bootstrap_means)
 
 .smaller[
 ```python
-# 4. for an 95% conf. int., trim off .5*(1-(.95/100)) of the data from both ends
+# 4. for an 95% conf. int., trim off .5*(1-.95) of the data from both ends
 ```
 ]
 .smaller[
@@ -437,7 +437,7 @@ bootstrap_means = np.array(bootstrap_means)
 bootstrap_means.sort()
 
 # calculate where to trim
-trim = ((1-.95) / 2) * num_iterations
+trim = .5*(1-.95) * num_iterations
 
 # find the closest integer
 trim = int(np.round(trim))
@@ -450,7 +450,7 @@ trim
 
 .smaller[
 ```python
-# 5. those trim points are the endpoints of the the  \alpha%  bootstrap conf int
+# 5. those trim points are the endpoints of the the  alpha%  bootstrap conf int
 ci = bootstrap_means[[trim,-trim]]
 ci
 ```]
@@ -1354,6 +1354,214 @@ count:false
 --
 count:false
 1. GOTO 1
+
+---
+#MAB Example
+
+--
+count:false
+- We have two ads
+--
+count:false
+- We don't know how often each will lead to a response
+--
+count:false
+- We need to decide which ad to add to each page request
+
+--
+count:false
+```python
+np.random.seed(7) # so the example is consistent
+```
+
+--
+count:false
+```python
+# creating two ads (distributions) with unknown response rate
+ad_A = sp.stats.bernoulli(p=np.random.rand())
+ad_B = sp.stats.bernoulli(p=np.random.rand())
+```
+
+--
+count:false
+- We'll use an $\epsilon$-greedy MAB to decide which ad to show
+
+--
+count:false
+```python
+# epsilon probability
+epsilon = 0.40
+```
+
+---
+#MAB Example
+
+
+--
+count:false
+- Round 1 and Round 2
+- Get an initial value for all arms
+
+--
+count:false
+```python
+pulls_A = [ad_A.rvs()]
+```
+
+--
+count:false
+```python
+pulls_B = [ad_B.rvs()]
+```
+
+--
+count:false
+```python
+pulls_A,pulls_B
+```
+```
+([0], [1])
+```
+---
+#MAB Example
+
+--
+count:false
+- Round 3
+- With probability $1-\epsilon$, choose the best arm (A)
+
+--
+count:false
+```python
+be_greedy = np.random.rand() > epsilon
+be_greedy
+```
+```
+True
+```
+
+--
+count:false
+```python
+pulls_B.append(ad_B.rvs())
+pulls_A,pulls_B
+```
+```
+([0], [1, 1])
+```
+ 
+---
+# MAB Example
+
+.smallest[
+```python
+def mab(ad_A,ad_B,pulls_A,pulls_B,epsilon):
+    be_greedy = np.random.rand() > e
+
+    if not be_greedy: # randomly choose
+        if np.random.rand() &lt; 0.5:
+            pulls_A.append(ad_A.rvs())
+            choice = 'A'
+        else:
+            pulls_B.append(ad_B.rvs())
+            choice = 'B'
+
+    else: # be greedy
+        resp_A = sum(pulls_A) / len(pulls_A)
+        resp_B = sum(pulls_B) / len(pulls_B)
+
+        if resp_A &gt; resp_B:
+            pulls_A.append(ad_A.rvs())
+            choice = 'A'
+        else:
+            pulls_B.append(ad_B.rvs())
+            choice = 'B'
+
+    return pulls_A, pulls_B, random_choice, choice
+```]
+
+
+---
+#MAB Example
+
+- Round 4
+
+```python
+pulls_A, pulls_B, be_greedy, choice = mab(ad_A,
+                                          ad_B,
+                                          pulls_A,
+                                          pulls_B,
+                                          epsilon)
+
+print(be_greedy,choice,pulls_A, pulls_B)
+```
+```
+True B [0] [1, 1, 1]
+```
+
+---
+#MAB Example
+
+- 10 more rounds
+
+.smaller[
+```python
+for i in range(10):
+    pulls_A, pulls_B, be_greedy, choice = mab(ad_A,ad_B,pulls_A,pulls_B,epsilon)
+    print(be_greedy,choice,pulls_A, pulls_B)
+```]
+```
+False A [0, 0]          [1, 1, 1]
+True  B [0, 0]          [1, 1, 1, 1]
+False A [0, 0, 0]       [1, 1, 1, 1]
+False A [0, 0, 0, 1]    [1, 1, 1, 1]
+False B [0, 0, 0, 1]    [1, 1, 1, 1, 0]
+False B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0]
+False B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0, 1]
+True  B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0, 1, 1]
+False A [0, 0, 0, 1, 0] [1, 1, 1, 1, 0, 0, 1, 1]
+True  B [0, 0, 0, 1, 0] [1, 1, 1, 1, 0, 0, 1, 1, 1]
+```
+
+---
+#MAB Example
+
+- Which arm seems best?
+
+```python
+'conversion rates: A: {:0.2f} B: {:0.2f}'.format(np.mean(pulls_A),
+                                                 np.mean(pulls_B))
+```
+```
+'conversion rates: A: 0.20 B: 0.78'
+```
+
+--
+count:false
+- Did we pick the best one?
+
+```python
+f'ground truth: A: {ad_A.pmf(1):0.2f} B: {ad_B.pmf(1):0.2f}'
+```
+```
+'ground truth: A: 0.08 B: 0.78'
+```
+
+---
+#MAB Variations
+
+--
+count:false
+- Thompson's Sampling: uses Baysian approach
+
+
+--
+count:false
+- UCB1: maximize expected reward (for arm $j$: $\bar{x}_j + \sqrt{2\log t / n_j}$)
+
+--
+count:false
+- ...
 
 ---
 class:middle
