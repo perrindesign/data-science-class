@@ -1172,6 +1172,8 @@ Wall time: 10.9 s
 ---
 #Another Ex: Price vs Conversion
 
+--
+count:false
 .smaller[
 ```python
 ax = sns.distplot(rand_conv_diffs, norm_hist=False, kde=False)
@@ -1179,8 +1181,11 @@ ax.vlines(diff_pct_conv, *ax.get_ylim(), color='r');
 ```]
 .center[![:scale 35%](images/conversion_permutation_distplot.png)]
 
+--
+count:false
 .smaller[
 ```python
+# calculate a two-tailed p-value
 ( sum(np.abs(np.array(rand_conv_diffs)) >= np.abs(diff_pct_conv))
     / len(rand_conv_diffs) )
 ```
@@ -1193,8 +1198,10 @@ ax.vlines(diff_pct_conv, *ax.get_ylim(), color='r');
 
 - based on the Student-t distribution
 - more involved to describe
-- works for numeric data
+- works for numeric data (can't use it for the last example)
 
+--
+count:false
 .smaller[
 ```python
 # using our session_times example
@@ -1226,7 +1233,7 @@ count:false
 --
 count:false
     - **alpha**: significance level at which to reject the null
-        - $p(\text{reject }H_0 \mid H_0 \text{ true})$
+        - $1-P(\text{reject }H_0 \mid H_0 \text{ true})$
 --
 count:false
     - **number of observations:** usually what we're interested in finding
@@ -1291,6 +1298,8 @@ count:false
 --
 count:false
 - **multiple tests:** the more tests you run, the more likely a Type 1 Error
+--
+count:false
     - Bonferonni correction: $\frac{\alpha}{m}$
 
 ---
@@ -1326,6 +1335,11 @@ count:false
 --
 count:false
 1. pull best arm
+
+
+--
+count:false
+- But what if there's a better choice, we just haven't seen it yet?
 
 ---
 # Exploration vs Exploitation
