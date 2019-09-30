@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Regression and Classification</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Regression and Classification
+
+09/30/2019
+
+---
+Summary
+
+- Correlation
+- Simple Linear Regression
+- Multiple Regression
+- Interpreting Coefficents
+- Regression for Real Valued Prediction
+- Regression for Classification
+- Distance Based Models
+- Tree Based Models
+- Neural Network Models
+
+---
+# Example Tips Data
+
+- Load tips dataset
+
+.smaller[
+```python
+tips = sns.load_dataset('tips')
+tips.shape
+```
+```
+(244, 7)
+```]
+--
+count:false
+
+.smaller[
+```python
+tips.head(5)
+```]
+![:scale 50%](images/tips_head.png)
+
+---
+# Correlation
+
+- **Question:** are total_bill and tips correlated?
+
+--
+count:false
+.smallest[
+```python
+sns.jointplot(x='total_bill',y='tip',data=tips);
+```]
+.center[
+![](images/tips_totalbill_joint.png)]
+
+---
+# Aside: Pearson Corr Coef.
+
+- **Question:** are total_bill and tips correlated? 
+--
+count:false
+- Could calculate Pearson Correlation Coefficient
+--
+count:false
+- Assumes normally distributed data! (which is not true here)
+
+--
+count:false
+```python
+from scipy.stats import pearsonr
+
+r,p = pearsonr(tips.total_bill,tips.tip)
+print(f'r: {r:.2f}, p: {p:.2f}')
+```
+```
+r: 0.68, p: 0.00
+```
+
+<br>
+--
+count:false
+.smallest[
+[On the Effects of Non-Normality on the Distribution of the Sample Product-Moment Correlation Coefficient](https://www.jstor.org/stable/2346598?seq=1#page_scan_tab_contents)
+]
+
+---
+#Linear Relationship
+
+- Is there a linear relationship between total_bill and tips?
+
+--
+count:false
+.smallest[
+```python
+sns.jointplot(x='total_bill',y='tip',data=tips, kind='reg');
+```]
+.center[
+![](images/tips_totalbill_joint_reg.png)]
+]
+
+
+---
+#Simple Linear Regression
+
+<br>
+--
+count:false
+.center[
+$\Large y_i = \beta x_i + \alpha + \varepsilon_i$ 
+]
+
+
+<br>
+--
+count:false
+- **$y_i$** : dependent, endogenous, target, label (Ex: `tips`)
+
+--
+count:false
+- **$x_i$** : independent, exogenous , feature, attribute (Ex: `total_bill`)
+
+--
+count:false
+- **$\beta$** : coefficient, slope
+
+--
+count:false
+- **$\alpha$** : bias term, intercept
+
+--
+count:false
+- **$\varepsilon_i$** : error, hopefully small, often assumed $\mathcal{N}(0,1)$
+
+
+--
+count:false
+- Want to find values for $\beta$ and $\alpha$ that best fit the data.
+
+
+---
+#Finding $\beta$ and $\alpha$
+
+--
+count:false
+- **prediction**: $\hat{y}_i = \beta x_i + \alpha$
+
+--
+count:false
+
+- **error**: $error(y_i,\hat{y}_i) = y_i - \hat{y}_i$
+
+--
+count:false
+
+- **sum of squared errors**: $\sum_{i=1:n}{\left(y_i - \hat{y}_i\right)^2}$
+
+
+--
+count:false
+- **least squares**: make the sum of squared errors as small as possible
+
+
+--
+count:false
+- **gradient descent**: minimize error by following the gradient wrt $\beta,\alpha$
+
+---
+#Aside: Gradient Descent
+
+--
+count:false
+- Often, want to maximize or minimize something (Ex: squared error)
+
+--
+count:false
+- **Gradient** : direction, vector of partial derivatives
+--
+count:false
+    - can get complicated, will often estimate this
+
+--
+count:false
+- **Gradient Descent** : take steps wrt the direction of the gradient 
+--
+count:false
+    - **maximize** : in the direction of the gradient
+--
+count:false
+    - **minimize** : in the opposite direction of the gradient
+
+--
+count:false
+- **Global Maximum/Minimum** : the single best solution
+
+--
+count:false
+- **Local Maximum/Minimum** : the best solution in the neighborhood
+
+
+---
+#Aside: Gradient Descent
+
+.center[
+![](images/gradient_descent.png)]
+
+- Finding a global min using gradient descent
+
+.smallest[
+- From Data Science From Scratch ([Chapter 8](https://ezproxy.cul.columbia.edu/login?qurl=https%3a%2f%2fsearch.ebscohost.com%2flogin.aspx%3fdirect%3dtrue%26db%3dnlebk%26AN%3d979529%26site%3dehost-live%26scope%3dsite&ebv=EK&ppid=Page-__-84))]
+
+---
+# OLS in Statsmodels
+
+--
+count:false
+- OLS : Ordinary Least Squares
+
+--
+count:false
+.smaller[
+```python
+import statsmodels.api as sm
+
+X = tips['total_bill'] # independent variable
+X = sm.add_constant(X) # bias term
+
+y = tips['tip']        # dependent variable
+
+model = sm.OLS(y,X)    # initialize the model
+result = model.fit()   # find the best fit
+```]
+
+--
+count:false
+.smaller[
+```python
+result.params
+```]
+.smaller[
+```
+const         0.920270  # alpha
+total_bill    0.105025  # beta
+dtype: float64
+```]
+
+--
+count:false
+.smallest[
+[ols documentation](https://www.statsmodels.org/dev/examples/notebooks/generated/ols.html)
+]
+
+---
+# Interpreting Coefficients
+
+.smaller[
+```
+const         0.920270  # alpha
+total_bill    0.105025  # beta
+dtype: float64
+```]
+
+
+--
+count:false
+.center[
+tips = 0.11 * total_bill + 0.92]
+
+<br>
+--
+count:false
+- What are tips when total_bill = 0?
+--
+count:false
+    - tips = .92 (tips start at about $1)
+
+
+--
+count:false
+- How do changes in total_bill affect tip?
+--
+count:false
+    - when we increase total_bill by 1
+--
+count:false
+    - tips go up 11 cents
+
+
+---
+# Plotting the Fit
+
+```python
+y_hat = result.predict(np.array([[1,0],[1,50]]))
+
+ax = sns.scatterplot(tips.total_bill,tips.tip);
+ax.plot([0,50],y_hat);
+```
+.center[
+![:scale 50%](images/fit_plot.png)]
+
+
+---
+# Evaluating Fit: Residuals
+
+--
+count:false
+- Residuals : $y - \hat{y}$
+- We we like to see normally distributed error
+
+.smallest[
+```python
+x = np.linspace(0,1,500)
+y = np.ones(500) + np.random.normal(0,1.0,size=(500))
+y_hat = np.ones(500)
+resid = y - y_hat
+ax = sns.scatterplot(x,resid);
+ax.set_xlabel('x'); ax.set_ylabel('resid');
+```]
+.center[![](images/residplot_normal.png)]
+
+---
+# Evaluating Fit: Residuals
+
+```python
+ax = sns.scatterplot(X.iloc[:,1],result.resid/np.std(result.resid))
+ax.set_ylabel('standardized residual');
+```
+.center[![:scale 50%](images/tips_resid.png)]
+
+[Interpreting residual plots](http://docs.statwing.com/interpreting-residual-plots-to-improve-your-regression/)
+---
+# Multiple Linear Regression
+
+--
+count:false
+- Including multiple independent variables
+
+--
+count:false
+.center[
+![:scale 70%](images/multiple_linear_regression_equation.png)]
+
+--
+count:false
+- Ex: include `total_bill` and `size`
+
+<br>
+--
+count:false
+- Note: 'multivarariate' usually refers to multiple *dependent* variabels
+
+---
+class:middle
+
+# Questions?
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+- Note: 'multivarariate' refers to multiple dependent variabels
+
+---
+class:middle
+
+# Questions?
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
