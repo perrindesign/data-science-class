@@ -278,20 +278,19 @@ count:false
 ```python
 import statsmodels.api as sm
 
-X = tips['total_bill']     # independent variable
-X = sm.add_constant(X)     # bias term
+X = tips['total_bill']         # independent variable
+X = sm.add_constant(X)         # bias term
 
-y = tips['tip']            # dependent variable
+y = tips['tip']                # dependent variable
 
-model_slr = sm.OLS(y,X)    # initialize the model
-result = model_slr.fit()   # find the best fit
+model_slr = sm.OLS(y,X).fit()  # initialize the model and fit
 ```]
 
 --
 count:false
 .smaller[
 ```python
-result.params
+model_slr.params
 ```]
 .smaller[
 ```
@@ -346,7 +345,7 @@ count:false
 # Plotting the Fit
 
 ```python
-y_hat = result.predict(np.array([[1,0],[1,50]]))
+y_hat = model_slr.predict(np.array([[1,0],[1,50]]))
 
 ax = sns.scatterplot(tips.total_bill,tips.tip);
 ax.plot([0,50],y_hat);
@@ -377,10 +376,11 @@ ax.set_xlabel('y_hat'); ax.set_ylabel('residual');
 ---
 # Evaluating Fit: Residuals
 
+.smaller[
 ```python
-ax = sns.scatterplot(X.iloc[:,1],result.resid/np.std(result.resid))
+ax = sns.scatterplot(modle_slr.predict(),model_slr.resid/np.std(model_slr.resid))
 ax.set_ylabel('standardized residual');
-```
+```]
 .center[![:scale 50%](images/tips_resid.png)]
 
 [Interpreting residual plots](http://docs.statwing.com/interpreting-residual-plots-to-improve-your-regression/)
@@ -505,7 +505,7 @@ count:false
 
 --
 count:false
-- MLS assumes features are linearly independent
+- MLR assumes features are linearly independent
 --
 count:false
 - Can't rewrite one column as a weighted sum of the others
