@@ -1011,12 +1011,18 @@ count:false
 #Another Ex: Price vs Conversion
 
 - Does Price A lead to higher conversions than Price B?
+
+--
+count:false
+
 - **Conversion:** Turning a visit into a sale
 
 
 --
 count:false
 - $H_0$: conversions for Price A &le; conversions for Price B
+--
+count:false
 - $H_1$: conversions for Price A &gt; conversions for Price B
 
 
@@ -1037,7 +1043,11 @@ No Conversion  23539   22406
 
 ---
 #Another Ex: Price vs Conversion
-- Metric of Interest? difference in percent conversion
+
+- Metric of Interest?
+--
+count:false
+    - difference in percent conversion
 
 --
 count:false
@@ -1054,10 +1064,10 @@ dtype: float64
 count:false
 ```python
 diff_pct_conv = pct_conv['Price A'] - pct_conv['Price B']
-print('{:.4f}'.format(diff_pct_conv))
+print(f'{diff_pct_conv:.4f}%')
 ```
 ```
-0.0368
+0.0368%
 ```
 
 ---
@@ -1135,12 +1145,12 @@ assert sum(samples) == n_conversion
 count:false
 ```python
 n_a, n_b = df.sum(axis=0)
-print(n_a, n_b)
+print(n_a, n_b, n_a + n_b)
 
 assert n_a + n_b == n
 ```
 ```
-23739 22588
+23739 22588 46327
 ```
 
 --
@@ -1162,6 +1172,8 @@ Wall time: 10.9 s
 ---
 #Another Ex: Price vs Conversion
 
+--
+count:false
 .smaller[
 ```python
 ax = sns.distplot(rand_conv_diffs, norm_hist=False, kde=False)
@@ -1169,12 +1181,16 @@ ax.vlines(diff_pct_conv, *ax.get_ylim(), color='r');
 ```]
 .center[![:scale 35%](images/conversion_permutation_distplot.png)]
 
+--
+count:false
 .smaller[
 ```python
-sum(np.array(rand_conv_diffs)) >= np.abs(diff_pct_conv) / len(rand_conv_diffs)
+# calculate a two-tailed p-value
+( sum(np.abs(np.array(rand_conv_diffs)) >= np.abs(diff_pct_conv))
+    / len(rand_conv_diffs) )
 ```
 ```
-0.373 
+0.679
 ```]
 
 ---
@@ -1182,8 +1198,10 @@ sum(np.array(rand_conv_diffs)) >= np.abs(diff_pct_conv) / len(rand_conv_diffs)
 
 - based on the Student-t distribution
 - more involved to describe
-- works for numeric data
+- works for numeric data (can't use it for the last example)
 
+--
+count:false
 .smaller[
 ```python
 # using our session_times example
@@ -1215,7 +1233,7 @@ count:false
 --
 count:false
     - **alpha**: significance level at which to reject the null
-        - $p(\text{reject }H_0 \mid H_0 \text{ true})$
+        - $1-P(\text{reject }H_0 \mid H_0 \text{ true})$
 --
 count:false
     - **number of observations:** usually what we're interested in finding
@@ -1280,6 +1298,8 @@ count:false
 --
 count:false
 - **multiple tests:** the more tests you run, the more likely a Type 1 Error
+--
+count:false
     - Bonferonni correction: $\frac{\alpha}{m}$
 
 ---
@@ -1315,6 +1335,11 @@ count:false
 --
 count:false
 1. pull best arm
+
+
+--
+count:false
+- But what if there's a better choice, we just haven't seen it yet?
 
 ---
 # Exploration vs Exploitation
@@ -1495,33 +1520,82 @@ pulls_A, pulls_B, be_greedy, choice = mab(ad_A,
 
 print(be_greedy,choice,pulls_A, pulls_B)
 ```
+--
+count:false
 ```
 True B [0] [1, 1, 1]
 ```
 
 ---
 #MAB Example
-
-- 10 more rounds
-
-.smaller[
+.smallest[
 ```python
+# ten more rounds
 for i in range(10):
     pulls_A, pulls_B, be_greedy, choice = mab(ad_A,ad_B,pulls_A,pulls_B,epsilon)
     print(be_greedy,choice,pulls_A, pulls_B)
 ```]
+--
+count:false
+.smaller[
 ```
 False A [0, 0]          [1, 1, 1]
-True  B [0, 0]          [1, 1, 1, 1]
-False A [0, 0, 0]       [1, 1, 1, 1]
-False A [0, 0, 0, 1]    [1, 1, 1, 1]
-False B [0, 0, 0, 1]    [1, 1, 1, 1, 0]
-False B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0]
-False B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0, 1]
-True  B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0, 1, 1]
-False A [0, 0, 0, 1, 0] [1, 1, 1, 1, 0, 0, 1, 1]
-True  B [0, 0, 0, 1, 0] [1, 1, 1, 1, 0, 0, 1, 1, 1]
+```]
+
+--
+count:false
+.smaller[
 ```
+True  B [0, 0]          [1, 1, 1, 1]
+```]
+--
+count:false
+.smaller[
+```
+False A [0, 0, 0]       [1, 1, 1, 1]
+```]
+--
+count:false
+.smaller[
+```
+False A [0, 0, 0, 1]    [1, 1, 1, 1]
+```]
+--
+count:false
+.smaller[
+```
+False B [0, 0, 0, 1]    [1, 1, 1, 1, 0]
+```]
+--
+count:false
+.smaller[
+```
+False B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0]
+```]
+--
+count:false
+.smaller[
+```
+False B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0, 1]
+```]
+--
+count:false
+.smaller[
+```
+True  B [0, 0, 0, 1]    [1, 1, 1, 1, 0, 0, 1, 1]
+```]
+--
+count:false
+.smaller[
+```
+False A [0, 0, 0, 1, 0] [1, 1, 1, 1, 0, 0, 1, 1]
+```]
+--
+count:false
+.smaller[
+```
+True  B [0, 0, 0, 1, 0] [1, 1, 1, 1, 0, 0, 1, 1, 1]
+```]
 
 ---
 #MAB Example
@@ -1535,6 +1609,7 @@ True  B [0, 0, 0, 1, 0] [1, 1, 1, 1, 0, 0, 1, 1, 1]
 ```
 'conversion rates: A: 0.20 B: 0.78'
 ```
+
 
 --
 count:false
