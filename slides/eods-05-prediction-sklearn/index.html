@@ -129,7 +129,11 @@ count:false
 --
 count:false
 - Parametric vs. Non-Parametric
-    - k-NN vs. logistic regression
+    - logistic regression vs. k-NN
+
+--
+count:false
+- ???
 
 ---
 # Regression And Classification
@@ -221,14 +225,22 @@ count:false
 ---
 # Regularization
 
+--
+count:false
 - Use to avoid overfitting in linear models
 
+--
+count:false
 - **Ridge** or $\ell_2$
     - Try to keep coefficients small
 
+--
+count:false
 - **LASSO** or $\ell_1$
     - Try to drive coefficients to zero
 
+--
+count:false
 - **ElasticNet**
     - Mixture of $\ell_1$ and $\ell_2$
     - $\alpha\ell_1 + (1-\alpha)\ell_2$
@@ -988,10 +1000,10 @@ print(f'lr : {lr.score(X,y):.2f}')
 ```]
 .smaller[
 ```
-lr : 0.81
+*lr : 0.81
 svc: 0.85
 knn: 0.87
-dtc: 0.98
+*dtc: 0.98
 mlp: 0.83
 rfc: 0.96
 gbc: 0.97
@@ -1001,6 +1013,30 @@ stc: 0.87
 --
 count:false
 What are we doing wrong here?
+
+---
+# But which model is best?
+
+- Using train_test_split
+
+.smaller[
+```python
+print(f'lr : {LogisticRegression().fit(X_train,y_train).score(X_test,y_test):.2f}')
+...
+```]
+--
+count:false
+.smaller[
+```
+*lr : 1.00
+svc: 0.92
+knn: 0.92
+*dtc: 0.62
+mlp: 0.92
+rfc: 0.77
+gbc: 0.77
+stc: 0.92
+```]
 
 --
 count:false
