@@ -104,8 +104,7 @@ count:false
 --
 count:false
 - Linear
-    - Linear/Logistic Regression
-    - SVM
+    - LinearRegression/Logistic Regression/SVM
 --
 count:false
 - Distance Based
@@ -114,6 +113,10 @@ count:false
 count:false
 - Tree Based
     - Decision Trees
+--
+count:false
+- Probablistic
+    - Naive Bayes
 --
 count:false
 - Network Based
@@ -127,10 +130,6 @@ count:false
 count:false
 - Parametric vs. Non-Parametric
     - k-NN vs. logistic regression
-
---
-count:false
-- Probabalistic vs. Non-Probabalistic
 
 ---
 # Regression And Classification
@@ -426,6 +425,11 @@ count:false
 count:false
 - need to deal with categorical variables
 
+--
+count:false
+###Need to choose
+- regularization
+
 ---
 # Support Vector Machine
 
@@ -490,6 +494,12 @@ count:false
 count:false
 - can use kernel trick to learn non-linear functions
 
+--
+count:false
+###Need to choose
+- kernel
+- penalty on error term
+
 ---
 # k-Nearest Neighbor
 
@@ -544,6 +554,11 @@ count:false
 count:false
 - curse of dimensionality
 
+--
+count:false
+###Need to choose
+- number of neighbors
+- distance function
 
 ---
 # Decision Tree
@@ -589,6 +604,11 @@ plt.xlabel(features[0]); plt.ylabel(features[1]);
 - very interpretable
 - tendency to overfit
 
+--
+count:false
+###Need to choose
+- criteria to choose feature split
+
 ---
 # Decision Tree
 .smallest[
@@ -597,6 +617,85 @@ sklearn.tree.plot_decision_tree()
 ```]
 ![](images/wine_2class_plotdecisiontree.png)
 
+---
+# Naive Bayes
+
+--
+count:false
+- Using Bayes rule
+
+.center[
+$P(y|x\_1,\ldots,x\_m) = \frac{P(x\_1,\ldots,x\_m|y)P(y)}{P(x\_1,\ldots,x\_m)}$]
+
+--
+count:false
+- Assume conditional independence of features given label
+
+.center[
+$P(x\_i|y,x\_1,\ldots,x\_{i-1},x\_{i+1},\ldots,x\_m) = P(x\_i|y)$]
+
+--
+count:false
+- And since the denominator is the same across label y, we get
+
+.center[
+$\hat{y} = \arg\max\_y P(y) \prod\_{i=1}^n P(x\_i,y)$]
+
+
+---
+# Naive Bayes
+
+--
+count:false
+- Easy when x's are counts
+    - Multinomial Naive Bayes
+    - assumes multinomial distribution for each label
+
+--
+count:false
+- Can also be used when x is real valued
+    - Gaussian Naive Bayes
+    - assumes gaussian distribution for each label
+
+---
+# Naive Bayes
+
+.smaller[
+```python
+from sklearn.naive_bayes import GaussianNB
+
+gnb = GaussianNB()
+gnb.fit(X,y)
+```]
+.smaller[
+```
+GaussianNB(priors=None, var_smoothing=1e-09)
+```]
+
+---
+# Naive Bayes
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=gnb);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_gnb.png)]
+
+---
+# Naive Bayes
+
+### Pros and Cons of Naive Bayes
+- simple
+- depends on strong independence assumption
+- depends on strong assumption of data distributions
+- data scarcity (when learning)
+
+--
+count:false
+###Need to choose
+- distribution for x
 
 ---
 # Neural Network
@@ -648,6 +747,13 @@ plt.xlabel(features[0]); plt.ylabel(features[1]);
 - can learn complex interactions
 - perform well on tasks involving complex signals (eg interactions of layered factors)
 
+--
+count:false
+###Need to choose
+- layers
+- activation function
+- learning rate
+- ...
 
 ---
 # Ensembles
@@ -718,6 +824,21 @@ plt.xlabel(features[0]); plt.ylabel(features[1]);
 .center[![](images/wine_2class_rfc.png)]
 
 ---
+# Random Forest
+
+--
+count:false
+###Pros and Cons of Gradient Boosting
+- less likely to overfit than decision tree
+- quick to predict, quick to train
+
+--
+count:false
+###Need to choose
+- number of trees
+- number of features per tree
+
+---
 # Gradient Boosting
 
 - Trees built by adding weight to errors
@@ -758,6 +879,21 @@ plt.xlabel(features[0]); plt.ylabel(features[1]);
 ```]
 .center[![](images/wine_2class_gbc.png)]
 
+---
+# Gradient Boosting
+
+--
+count:false
+###Pros and Cons of Gradient Boosting
+- pays more attention to difficult regions
+- quick to predict, slow to train
+- tends to work well
+
+--
+count:false
+###Need to choose
+- number of trees
+- max-depth
 
 ---
 # Stacking
@@ -766,6 +902,111 @@ plt.xlabel(features[0]); plt.ylabel(features[1]);
 
 .smallest[
 From https://blogs.sas.com/content/subconsciousmusings/2017/05/18/stacked-ensemble-models-win-data-science-competitions/]
+
+---
+# Stacking
+.smallest[
+```python
+from mlxtend.classifier import StackingClassifier
+
+ensemble = [LogisticRegression(),GaussianNB(),KNeighborsClassifier()]
+stc = StackingClassifier(ensemble,LogisticRegression())
+stc.fit(X,y)
+```]
+
+.smallest[
+```
+StackingClassifier(average_probas=False,
+                   classifiers=[LogisticRegression(C=1.0, class_weight=None,
+                                                   dual=False,
+                                                   fit_intercept=True,
+                                                   intercept_scaling=1,
+                                                   l1_ratio=None, max_iter=100,
+                                                   multi_class='warn',
+                                                   n_jobs=None, penalty='l2',
+                                                   random_state=None,
+                                                   solver='warn', tol=0.0001,
+                                                   verbose=0,
+                                                   warm_start=False),
+                                GaussianNB(priors=None, var_smoothing=1e-09),
+                                KNeighborsClassifi...]
+                   meta_classifier=LogisticRegression(C=1.0, class_weight=None,
+                                                      dual=False,
+                                                      fit_intercept=True,
+                                                      intercept_scaling=1,
+                                                      l1_ratio=None,
+                                                      max_iter=100,
+                                                      multi_class='warn',
+                                                      n_jobs=None, penalty='l2',
+                                                      random_state=None,
+                                                      solver='warn', tol=0.0001,
+                                                      verbose=0,
+                                                      warm_start=False),
+                   store_train_meta_features=False, use_clones=True,
+                   use_features_in_secondary=False, use_probas=False,
+                   verbose=0)
+                   ```]]
+
+---
+# Stacking
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=stc);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_stc.png)]
+
+---
+# Stacking
+
+--
+count:false
+###Pros and Cons of Stacking
+- combines benefits of multiple learning types
+- easy to implement
+- tends to win competitions
+
+--
+count:false
+###Need to choose
+- member learners
+- meta-learner
+
+---
+# But which model is best?
+
+- For classification, .score defaults to accuracy: $\frac{TP + TN}{n}$
+
+--
+count:false
+.smaller[
+```python
+print(f'lr : {lr.score(X,y):.2f}')
+...
+```]
+.smaller[
+```
+lr : 0.81
+svc: 0.85
+knn: 0.87
+dtc: 0.98
+mlp: 0.83
+rfc: 0.96
+gbc: 0.97
+stc: 0.87
+```]
+
+--
+count:false
+What are we doing wrong here?
+
+--
+count:false
+**Next : Model Evaluation and Selection**
+
+
 ---
 class:middle
 
