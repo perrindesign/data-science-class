@@ -115,7 +115,7 @@ count:false
     - Decision Trees
 --
 count:false
-- Probablistic
+- Probabilistic
     - Naive Bayes
 --
 count:false
@@ -167,7 +167,7 @@ count:false
 <br>
 --
 count:false
-- can convert a regression problem into classifiction with binning/threshold
+- can convert a regression problem into classification with binning/threshold
 
 
 ---
@@ -214,7 +214,7 @@ count:false
 --
 count:false
 - Keep the model as simple as possible
-    - Occom's Razor
+    - Occam's Razor
 
 
 --
@@ -266,37 +266,37 @@ count:false
 # Sklearn Standard Usage
 
 --
-conda:false
+count:false
 ```python
 from sklearn import Model  # import the model
 ```
 
 --
-conda:false
+count:false
 ```python
-model = Model()            # instantiate and set any hyperparamters
+model = Model()            # instantiate and set any hyperparameters
 ```
 
 --
-conda:false
+count:false
 ```python
 model.fit(X,y)             # fit/train the model on the data
 ```
 
 --
-conda:false
+count:false
 ```python
 yhat = model.predict(X)    # generate predictions using trained model
 ```
 
 --
-conda:false
+count:false
 ```python
 yhat = model.score(y,yhat) # measure model performance
 ```
 
 --
-conda:false
+count:false
 ```python
 X_new = model.transform(X) # transform data
 ```
@@ -543,7 +543,7 @@ KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski',
 .smallest[
 ```python
 fig,ax = plt.subplots(1,1,figsize=(6,6))
-plot_decision_regions(X, y, clf=svc);
+plot_decision_regions(X, y, clf=knn);
 plt.xlabel(features[0]); plt.ylabel(features[1]);
 ```]
 .center[![](images/wine_2class_knn.png)]
@@ -651,7 +651,7 @@ count:false
 - And since the denominator is the same across label y, we get
 
 .center[
-$\hat{y} = \arg\max\_y P(y) \prod\_{i=1}^n P(x\_i,y)$]
+$\hat{y} = \arg\max\_y P(y) \prod\_{i=1}^n P(x\_i|y)$]
 
 
 ---
@@ -785,7 +785,7 @@ count:false
 ###Common Methods for generating ensembles:
 --
 count:false
-- Bagging (Bootstrapp Aggregation)
+- Bagging (Bootstrap Aggregation)
     - Random Forest
 --
 count:false
