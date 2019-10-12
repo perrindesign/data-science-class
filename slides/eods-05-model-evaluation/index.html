@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Model Evaluation and Selection</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Model Evaluation and Selection
+
+10/07/2019
+
+---
+#In this lecture
+
+- Model Evaluation and Selection
+- Overfitting and Underfitting
+    - Train/Test split
+    - Validation Curve
+- Metrics: Regression
+    - RMSE
+    - R^2
+- Metrics: Classification
+    - Accuracy
+    - Confusion Matrix
+    - Precision
+    - Recall
+    - ROC
+    - AUC
+- Tuning Hyperparameters
+    - Cross Validation
+    - Grid Search
+
+---
+# Sample Datasets
+
+.smallest[
+```python
+import pandas as pd
+import seaborn as sns
+from sklearn import datasets
+```]
+
+.smallest[
+```python
+tips = sns.load_dataset('tips')
+tips = sns.load_dataset('tips')
+X_tips = tips[['total_bill','size']]
+y_tips = tips.tip
+X_tips.shape, y_tips.shape
+```
+```
+((244, 2), (244,))
+```]
+
+.smallest[
+```python
+wine = datasets.load_wine()
+X_wine = pd.DataFrame(wine.data,columns=wine.feature_names)
+y_wine = wine.target
+
+features_wine = wine.feature_names[3:5]
+X_wine = X_wine.iloc[y_wine &lt; 2,3:5].apply(lambda x: (x-x.mean())/x.std()).values
+y_wine = y_wine[y_wine &lt; 2]
+X_wine.shape,y_wine.shape
+```]
+.smallest[
+```
+((130, 2), (130,))
+```]
+
+---
+# Steps to Choosing a Model
+
+
+--
+count:false
+1. Create Held-Aside Set (Train/Test Split)
+
+--
+count:false
+2. Determine Metric (or combination of metrics)
+
+--
+count:false
+2. Get a Baseline for comparison
+
+--
+count:false
+3. Use Cross-Validation to fit Hyperparameters and Choose Model
+
+--
+count:false
+4. Evaluate Chosen Model on Held-Aside Set 
+---
+# Goal of Prediction
+
+--
+count:false
+- Given an item $x$, predict a value $\hat{y}$
+
+--
+count:false
+- often, $\hat{y} = \arg\max_y f(y,x)$
+
+--
+count:false
+- often less interested in why than in how well
+
+
+
+--
+count:false
+- How well will model generalize?
+
+--
+count:false
+- **Generalization**: 
+   - how well will model predict on data that it hasn't seen yet
+
+
+---
+# Avoiding Overfitting/Underfitting
+
+--
+count:false
+- **Overfitting**: poor generalization due to complexity
+    - learning noise in training leading to poor generalization
+
+--
+count:false
+- Never train and evaluate on the same set of data!
+    - train test split
+    - cross-validation
+
+--
+count:false
+- Keep the model as simple as possible
+    - Occom's Razor
+
+
+--
+count:false
+- **Underfitting**: poor generalization due to simplicity
+
+
+---
+# Train/Test Split
+
+
+--
+count:false
+.center[![](images/train_test_split.png)]
+<br>
+
+
+--
+count:false
+- Training set: portion of dataset used for training
+
+--
+count:false
+- Test or Held-aside set: portion of the dateset used for evaluation
+
+
+--
+count:false
+- Want your test set to reflect the same distribution as training
+
+--
+count:false
+.smallest[From https://www.researchgate.net/figure/Train-Test-Data-Split_fig6_325870973]
+
+---
+# Train/Test Split
+--
+count:false
+.smaller[
+```python
+from sklearn.model_selection import train_test_split
+
+X_train,X_test,y_train,y_test = train_test_split(X,
+                                                 y,
+                                                 test_size=.1,
+                                                 stratify=y,
+                                                 random_state=123)
+```]
+
+
+--
+count:false
+- stratify: maintain the same class distribution
+
+--
+count:false
+- random_state: only use for testing code (get same split every time)
+
+--
+count:false
+- How big should test be? Large enough to capture variance of dataset.
+    - depends on the dataset and the models being trained
+
+
+
+---
+# Regression: Train/Test Split
+
+--
+count:false
+.smaller[
+```python
+X_tips.shape, y_tips.shape
+```]
+.smaller[
+```
+((244, 2), (244,))
+```]
+
+<br>
+--
+count:false
+.smaller[
+```python
+X_train,X_test,y_train,y_test = train_test_split(X_tips, y_tips, random_state=123)
+```]
+
+--
+count:false
+.smaller[
+```python
+X_train.shape, X__test.shape
+```]
+.smaller[
+```
+((183, 2), (61, 2))
+```]
+
+--
+count:false
+.smaller[
+```python
+y_train.shape, y_test.shape
+```]
+.smaller[
+```
+((183,), (61,))
+```]
+
+---
+# Regression: Metrics
+
+How well is our model doing?
+
+--
+count:false
+- Root Mean Squared Error (RMSE) : describes accuracy
+
+.center[$RMSE = \sqrt{\frac{1}{n}\sum \left(\hat{y}_i - y_i\right)^2}$]
+
+
+--
+count:false
+- $R^2$: describes amount of explained variance (sklearn default)
+
+.center[$R^2 = 1 - \frac{\sum \left(\hat{y}_i - y_i\right)^2}{\sum \left(\bar{y} - y_i\right)^2}$]
+
+
+--
+count:false
+- Adjusted $R^2$: takes into account number of parameters
+.center[$R\_{adj}^2 = 1 - (1 - R^2)\frac{n}{n-m-1}$]
+
+
+
+---
+# Regression: Baseline
+
+--
+count:false
+```python
+from sklearn.dummy import DummyRegressor
+
+dummy_reg = DummyRegressor().fit(X_train,y_train)
+```
+
+--
+count:false
+```python
+dummy_re.predict([[0,0], [1,1]])
+```
+```
+array([2.98797814, 2.98797814])
+```
+
+--
+count:false
+```python
+y_train.mean()
+```
+```
+2.9879781420765026
+```
+
+--
+count:false
+```python
+dummy_reg.score(X_test,y_test)
+```
+```
+-0.001154933013596926
+```
+
+---
+# Regression: Baseline $R^2$
+
+--
+count:false
+```python
+from sklearn.metrics import r2_score
+```
+
+--
+count:false
+```python
+yhat = dummy_reg.predict(X_test) # get predictions
+```
+
+--
+count:false
+```python
+r2_score(y_hat,y_test)
+```
+```
+-0.001154933013596926
+```
+
+
+--
+count:false
+```python
+def adj_r2_score(r2,num_items,num_parameters):
+    return 1 - (1-r2)*num_items/(num_items-num_parameters-1)
+```
+--
+count:false
+```python
+adj_r2_score(r2_score(y_test,y_hat),*X_test.shape)
+```
+```
+-0.05293880885912783
+```
+
+---
+# Regression: Baseline RMSE
+
+--
+count:false
+```python
+from sklearn.metrics import mean_squared_error
+```
+--
+count:false
+```python
+mean_squared_error(y_test,y_hat)
+```
+```
+1.4715838334975666
+```
+
+--
+count:false
+```python
+def rmse(mse)
+    return np.sqrt(mse)
+```
+
+--
+count:false
+```python
+rmse(mean_squared_error(y_test,y_hat))
+```
+```
+1.2130885513834373
+```
+
+
+---
+# Regression: Linear Regression
+
+--
+count:false
+```python
+from sklearn.linear_model import LinearRegression
+```
+
+--
+count:false
+```python
+linr = LinearRegression().fit(X_train,y_train)
+```
+
+--
+count:false
+```python
+linr.score(X_test,y_test)
+```
+```
+0.4697819853335495
+```
+
+--
+count:false
+```python
+adj_r2_score(linr.score(X_test,y_test),*X_test.shape)
+```
+```
+0.4423569156094227
+```
+
+--
+count:false
+```python
+rmse(mean_squared_error(y_test,linr.predict(X_test)))
+```
+```
+0.8828137684958168
+```
+
+---
+# Aside: Single Features, Single Sample
+
+.smaller[
+```python
+linr.fit(X_train.iloc[:,0],y_train)
+```]
+
+.smaller[
+```
+ValueError: Expected 2D array, got 1D array instead:
+array=[25.56 21.5  34.3  26.86 27.05 10.7...]
+...
+Reshape your data either using array.reshape(-1, 1) if your data 
+has a single feature or array.reshape(1, -1) if it contains a single sample.
+```]
+
+--
+count:false
+.smaller[
+```python
+X_train.iloc[:,0].shape
+```]
+.smaller[
+```
+(183,)
+```]
+--
+count:false
+.smaller[
+```python
+X_train.iloc[:,0].values.reshape(-1,1).shape
+```]
+.smaller[
+```
+(183, 1)
+```]
+
+
+
+
+---
+class:middle
+
+# Questions?
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>

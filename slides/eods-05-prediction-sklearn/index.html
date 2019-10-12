@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prediction and Sklearn</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Prediction and Sklearn
+
+10/6/2019
+
+---
+# Dimensions of ML
+<br>
+
+--
+count:false
+- Interpretation vs Prediction
+
+--
+count:false
+- Regression vs Classification
+
+--
+count:false
+- Model Families
+
+---
+# Dimensions of ML
+
+--
+count:false
+### Interpretation vs Prediction
+
+--
+count:false
+- Do we care more about how X relates to y?
+--
+count:false
+    - Ex: What happens to tip size as taxi trip length increases?
+--
+count:false
+    - Ex:What is the relationship between debt and loan default?
+--
+count:false
+
+
+
+--
+count:false
+- Do we care more about generating predictions?
+--
+count:false
+    - Ex: For a given trip, what will the tip size likely be?
+--
+count:false
+    - Ex: For a given loan, will there be a default?
+
+---
+# Dimensions of ML
+--
+count:false
+### Regression vs Classification
+--
+count:false
+- Real valued labels
+--
+count:false
+    - Ex: For a given trip, what will the tip size likely be?
+--
+count:false
+    - Ex: For a given house, what is the price likely to be?
+
+
+--
+count:false
+- Discrete categorical labels
+
+--
+count:false
+    - Ex: For a given type of wine, what is it's likely grade?
+--
+count:false
+    - Ex: For a given image patch, is there a face in it?
+
+
+---
+# Dimensions of ML
+--
+count:false
+### Model Families
+--
+count:false
+- Linear
+    - LinearRegression/Logistic Regression/SVM
+--
+count:false
+- Distance Based
+    - K-Nearest Neighbor
+--
+count:false
+- Tree Based
+    - Decision Trees
+--
+count:false
+- Probabilistic
+    - Naive Bayes
+--
+count:false
+- Network Based
+    - Neural Networks
+
+---
+# Dimensions of ML
+
+### Other Dimensions
+--
+count:false
+- Parametric vs. Non-Parametric
+    - logistic regression vs. k-NN
+
+--
+count:false
+- ???
+
+---
+# Regression And Classification
+
+
+--
+count:false
+- **Regression** -> predict a real value (Ex. predict tip)
+
+--
+count:false
+- **Classification** -> predict a discrete class, category
+
+
+
+--
+count:false
+- **Binary** classification : two categories 
+    - pos/neg, cat/dog, win/lose
+--
+count:false
+- **Multiclass** classification : more than two categories 
+    - red/green/blue, flower type, integer 0-10
+
+--
+count:false
+- **Multilabel** classification : can assign more than one label to an instance
+    - paper topics, entities in image
+
+
+<br>
+--
+count:false
+- can convert a regression problem into classification with binning/threshold
+
+
+---
+# Intro to Prediction
+
+--
+count:false
+- Given an item $x$, predict a value $\hat{y}$
+
+--
+count:false
+- often, $\hat{y} = \arg\max_y f(y,x)$
+
+--
+count:false
+- often less interested in why than in how well
+
+
+
+--
+count:false
+- How well will model generalize?
+
+--
+count:false
+- **Generalization**: 
+   - how well will model predict on data that it hasn't seen yet
+
+
+---
+# Avoiding Overfitting/Underfitting
+
+--
+count:false
+- **Overfitting**: poor generalization due to complexity
+    - learning noise in training leading to poor generalization
+
+--
+count:false
+- Never train and evaluate on the same set of data!
+    - train test split
+    - cross-validation
+
+--
+count:false
+- Keep the model as simple as possible
+    - Occam's Razor
+
+
+--
+count:false
+- **Underfitting**: poor generalization due to simplicity
+
+
+---
+# Regularization
+
+--
+count:false
+- Use to avoid overfitting in linear models
+
+--
+count:false
+- **Ridge** or $\ell_2$
+    - Try to keep coefficients small
+
+--
+count:false
+- **LASSO** or $\ell_1$
+    - Try to drive coefficients to zero
+
+--
+count:false
+- **ElasticNet**
+    - Mixture of $\ell_1$ and $\ell_2$
+    - $\alpha\ell_1 + (1-\alpha)\ell_2$
+
+---
+# Modeling Libraries
+
+--
+count:false
+- Interpretation - Statsmodels
+        
+
+.center[![:scale 50%](images/statsmodels.png)]
+
+--
+count:false
+- Prediction - scikit-learn
+ - plus much more!
+
+.center[![:scale 30%](images/sklearn.png)]
+
+---
+# Sklearn Standard Usage
+
+--
+count:false
+```python
+from sklearn import Model  # import the model
+```
+
+--
+count:false
+```python
+model = Model()            # instantiate and set any hyperparameters
+```
+
+--
+count:false
+```python
+model.fit(X,y)             # fit/train the model on the data
+```
+
+--
+count:false
+```python
+yhat = model.predict(X)    # generate predictions using trained model
+```
+
+--
+count:false
+```python
+yhat = model.score(y,yhat) # measure model performance
+```
+
+--
+count:false
+```python
+X_new = model.transform(X) # transform data
+```
+
+
+
+---
+# Aside: Mlxtend and conda-forge
+
+
+--
+count:false
+.small[
+> Mlxtend (machine learning extensions) is a Python library of useful tools for the day-to-day data science tasks.]
+
+.center[
+![:scale 10%](images/mlxtend.png)]
+
+--
+count:false
+.small[
+> A community-led collection of recipes, build infrastructure and distributions for the conda package manager.]
+.center[![:scale 10%](images/conda_forge.png)]
+
+--
+count:false
+```bash
+$ conda install --name eods-f19 --channel conda-forge mlxtend
+```
+
+
+
+---
+# Example: Wine
+
+.smallest[
+```python
+from sklearn import datasets
+wine = datasets.load_wine()
+X = pd.DataFrame(wine.data,columns=wine.feature_names)
+y = wine.target
+```]
+.smallest[
+```python
+# keep only class 0 and 1 and two columns of X and standardize X
+features = wine.feature_names[3:5]
+X = X.iloc[y &lt; 2,3:5].apply(lambda x: (x-x.mean())/x.std()).values
+y = y[y &lt; 2]
+X.shape,y.shape
+```]
+.smallest[
+```
+((130, 2), (130,))
+```]
+.smallest[
+```python
+features
+```]
+.smallest[
+```
+['alcalinity_of_ash', 'magnesium']
+```
+]
+
+---
+# Example: Wine
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(8,8))
+sns.scatterplot(X[y==0,0],X[y==0,1],label='class 0',marker='s',s=80);
+sns.scatterplot(X[y==1,0],X[y==1,1],label='class 1',marker='^',s=80);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[
+![](images/wine_2class.png)]
+
+
+---
+# Logistic Regression
+
+> Use a squashing function on a linear regression to get a classification
+
+--
+count:false
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+lr = LogisticRegression()
+
+lr.fit(X,y)
+```
+.smaller[
+```
+LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,
+                   intercept_scaling=1, l1_ratio=None, max_iter=100,
+                   multi_class='warn', n_jobs=None, penalty='l2',
+                   random_state=None, solver='warn', tol=0.0001, verbose=0,
+                   warm_start=False)
+                   ```
+                   ]
+
+---
+# Logistic Regression
+--
+count:false
+.smallest[
+```python
+from mlxtend.plotting import plot_decision_regions
+```]
+--
+count:false
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=lr, legend=2);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+--
+count:false
+.center[![](images/wine_2class_lr.png)]
+
+---
+# Logistic Regression
+
+### Pros and Cons of Logistic Regression
+--
+count:false
+- interpretable
+--
+count:false
+- sensitive to scaling of variables
+--
+count:false
+- sensitive to colinearity
+--
+count:false
+- need to deal with categorical variables
+
+--
+count:false
+###Need to choose
+- regularization
+
+---
+# Support Vector Machine
+
+> Find the line/plane that separates our classes with the largest margin
+<br>
+<br>
+--
+count:false
+.center[
+![](images/svm-separating-lines.png)
+]
+
+---
+# Support Vector Machine
+
+> Find the line/plane that separates our classes with the largest margin
+<br>
+<br>
+.center[
+![](images/svm-optimal-hyperplane.png)
+]
+
+---
+# Support Vector Machine
+
+```python
+from sklearn.svm import SVC
+
+svc = SVC()
+svc.fit(X,y)
+```
+```
+SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
+    decision_function_shape='ovr', degree=3, gamma='auto_deprecated',
+    kernel='rbf', max_iter=-1, probability=False, random_state=None,
+    shrinking=True, tol=0.001, verbose=False)
+```
+
+---
+# Support Vector Machine
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=svc);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_svm.png)]
+
+
+---
+# Support Vector Machine
+
+###Pros and Cons of SVM
+--
+count:false
+- slow to learn
+--
+count:false
+- fast to evaluate
+--
+count:false
+- can use kernel trick to learn non-linear functions
+
+--
+count:false
+###Need to choose
+- kernel
+- penalty on error term
+
+---
+# k-Nearest Neighbor
+
+> What category do most of the $k$ nearest neighbors belong to
+
+<br>
+<br>
+--
+count:false
+.center[![](images/KnnClassification.svg.png)]
+
+---
+# k-Nearest Neighbor
+
+```python
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier()
+knn.fit(X,y)
+```
+```
+KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski',
+                     metric_params=None, n_jobs=None, n_neighbors=5, p=2,
+                     weights='uniform')
+                     ```
+
+---
+#k-Nearest Neighbor
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=knn);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_knn.png)]
+
+
+---
+#k-Nearest Neighbor
+
+###Pros and Cons of kNN
+--
+count:false
+- fast to train
+--
+count:false
+- potentially slow to predict
+--
+count:false
+- need to deal with categorical variables
+--
+count:false
+- curse of dimensionality
+
+--
+count:false
+###Need to choose
+- number of neighbors
+- distance function
+
+---
+# Decision Tree
+
+> If we ask a bunch of yes no questions, what answers do we see?
+
+
+.center[![:scale 50%](images/iris_decision_tree.svg)]
+
+---
+# Decision Tree
+
+```python
+from sklearn.tree import DecisionTreeClassifier
+
+dtc = DecisionTreeClassifier()
+dtc.fit(X,y)
+```
+```
+DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=None,
+                       max_features=None, max_leaf_nodes=None,
+                       min_impurity_decrease=0.0, min_impurity_split=None,
+                       min_samples_leaf=1, min_samples_split=2,
+                       min_weight_fraction_leaf=0.0, presort=False,
+                       random_state=None, splitter='best')
+```
+---
+# Decision Tree
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=dtc);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_dt.png)]
+
+
+---
+# Decision Tree
+
+###Pros and Cons of Decision Trees
+- very interpretable
+- tendency to overfit
+
+--
+count:false
+###Need to choose
+- criteria to choose feature split
+
+---
+# Decision Tree
+.smallest[
+```python
+sklearn.tree.plot_decision_tree()
+```]
+![](images/wine_2class_plotdecisiontree.png)
+
+---
+# Naive Bayes
+
+--
+count:false
+- Using Bayes rule
+
+.center[
+$P(y|x\_1,\ldots,x\_m) = \frac{P(x\_1,\ldots,x\_m|y)P(y)}{P(x\_1,\ldots,x\_m)}$]
+
+--
+count:false
+- Assume conditional independence of features given label
+
+.center[
+$P(x\_i|y,x\_1,\ldots,x\_{i-1},x\_{i+1},\ldots,x\_m) = P(x\_i|y)$]
+
+--
+count:false
+- And since the denominator is the same across label y, we get
+
+.center[
+$\hat{y} = \arg\max\_y P(y) \prod\_{i=1}^n P(x\_i|y)$]
+
+
+---
+# Naive Bayes
+
+--
+count:false
+- Easy when x's are counts
+    - Multinomial Naive Bayes
+    - assumes multinomial distribution for each label
+
+--
+count:false
+- Can also be used when x is real valued
+    - Gaussian Naive Bayes
+    - assumes gaussian distribution for each label
+
+---
+# Naive Bayes
+
+.smaller[
+```python
+from sklearn.naive_bayes import GaussianNB
+
+gnb = GaussianNB()
+gnb.fit(X,y)
+```]
+.smaller[
+```
+GaussianNB(priors=None, var_smoothing=1e-09)
+```]
+
+---
+# Naive Bayes
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=gnb);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_gnb.png)]
+
+---
+# Naive Bayes
+
+### Pros and Cons of Naive Bayes
+- simple
+- depends on strong independence assumption
+- depends on strong assumption of data distributions
+- data scarcity (when learning)
+
+--
+count:false
+###Need to choose
+- distribution for x
+
+---
+# Neural Network
+
+### Perceptron
+.center[![:scale 60%](images/perceptron.png)]
+
+---
+# Neural Network
+
+.center[![:scale 90%](images/multi_layer_perceptron.png)]
+
+
+---
+# Neural Network
+
+.smaller[
+```python
+from sklearn.neural_network import MLPClassifier
+
+mlp = MLPClassifier()
+mlp.fit(X,y)
+```]
+.smaller[```
+MLPClassifier(activation='relu', alpha=0.0001, batch_size='auto', beta_1=0.9,
+              beta_2=0.999, early_stopping=False, epsilon=1e-08,
+              hidden_layer_sizes=(100,), learning_rate='constant',
+              learning_rate_init=0.001, max_iter=200, momentum=0.9,
+              n_iter_no_change=10, nesterovs_momentum=True, power_t=0.5,
+              random_state=None, shuffle=True, solver='adam', tol=0.0001,
+              validation_fraction=0.1, verbose=False, warm_start=False)
+            ```]
+
+---
+# Neural Network
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=mlp);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_mlp.png)]
+
+---
+# Neural Network
+
+###Pros and Cons of Deep Learning
+- highly uninterpretable
+- can learn complex interactions
+- perform well on tasks involving complex signals (eg interactions of layered factors)
+
+--
+count:false
+###Need to choose
+- layers
+- activation function
+- learning rate
+- ...
+
+---
+# Ensembles
+
+--
+count:false
+- Wisdom of the crowd
+--
+count:false
+- Can often achieve better performance with collection of learners
+--
+count:false
+- Often use shallow trees as base learners
+
+--
+count:false
+###Common Methods for generating ensembles:
+--
+count:false
+- Bagging (Bootstrap Aggregation)
+    - Random Forest
+--
+count:false
+- Boosting
+    - Gradient Boosting
+--
+count:false
+- Stacking
+
+---
+# Random Forest And GradientBoost
+.center[![:scale 80%](images/Architecture-of-the-random-forest-model.png)]
+
+---
+# Random Forest
+
+- Trees built with bootstrap sample and subsets of features
+
+- Variation with random selection of features (and samples)
+
+.smaller[
+```python
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier()
+rfc.fit(X,y)
+```]
+.smaller[
+```
+RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
+                       max_depth=None, max_features='auto', max_leaf_nodes=None,
+                       min_impurity_decrease=0.0, min_impurity_split=None,
+                       min_samples_leaf=1, min_samples_split=2,
+                       min_weight_fraction_leaf=0.0, n_estimators=10,
+                       n_jobs=None, oob_score=False, random_state=None,
+                       verbose=0, warm_start=False)
+                    ```]
+
+---
+# Random Forest
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=rfc);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_rfc.png)]
+
+---
+# Random Forest
+
+--
+count:false
+###Pros and Cons of Gradient Boosting
+- less likely to overfit than decision tree
+- quick to predict, quick to train
+
+--
+count:false
+###Need to choose
+- number of trees
+- number of features per tree
+
+---
+# Gradient Boosting
+
+- Trees built by adding weight to errors
+
+- Variation due to changes in weights on observations
+
+
+.smaller[
+```python
+from sklearn.ensemble import GradientBoostingClassifier
+
+gbc = GradientBoostingClassifier()
+gbc.fit(X,y)
+```]
+
+.smaller[
+```
+GradientBoostingClassifier(criterion='friedman_mse', init=None,
+                           learning_rate=0.1, loss='deviance', max_depth=3,
+                           max_features=None, max_leaf_nodes=None,
+                           min_impurity_decrease=0.0, min_impurity_split=None,
+                           min_samples_leaf=1, min_samples_split=2,
+                           min_weight_fraction_leaf=0.0, n_estimators=100,
+                           n_iter_no_change=None, presort='auto',
+                           random_state=None, subsample=1.0, tol=0.0001,
+                           validation_fraction=0.1, verbose=0,
+                           warm_start=False)
+                           ```]
+
+---
+# Gradient Boosting
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=gbc);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_gbc.png)]
+
+---
+# Gradient Boosting
+
+--
+count:false
+###Pros and Cons of Gradient Boosting
+- pays more attention to difficult regions
+- quick to predict, slow to train
+- tends to work well
+
+--
+count:false
+###Need to choose
+- number of trees
+- max-depth
+
+---
+# Stacking
+
+.center[![](images/modelstacking.png)]
+
+.smallest[
+From https://blogs.sas.com/content/subconsciousmusings/2017/05/18/stacked-ensemble-models-win-data-science-competitions/]
+
+---
+# Stacking
+.smallest[
+```python
+from mlxtend.classifier import StackingClassifier
+
+ensemble = [LogisticRegression(),GaussianNB(),KNeighborsClassifier()]
+stc = StackingClassifier(ensemble,LogisticRegression())
+stc.fit(X,y)
+```]
+
+.smallest[
+```
+StackingClassifier(average_probas=False,
+                   classifiers=[LogisticRegression(C=1.0, class_weight=None,
+                                                   dual=False,
+                                                   fit_intercept=True,
+                                                   intercept_scaling=1,
+                                                   l1_ratio=None, max_iter=100,
+                                                   multi_class='warn',
+                                                   n_jobs=None, penalty='l2',
+                                                   random_state=None,
+                                                   solver='warn', tol=0.0001,
+                                                   verbose=0,
+                                                   warm_start=False),
+                                GaussianNB(priors=None, var_smoothing=1e-09),
+                                KNeighborsClassifi...]
+                   meta_classifier=LogisticRegression(C=1.0, class_weight=None,
+                                                      dual=False,
+                                                      fit_intercept=True,
+                                                      intercept_scaling=1,
+                                                      l1_ratio=None,
+                                                      max_iter=100,
+                                                      multi_class='warn',
+                                                      n_jobs=None, penalty='l2',
+                                                      random_state=None,
+                                                      solver='warn', tol=0.0001,
+                                                      verbose=0,
+                                                      warm_start=False),
+                   store_train_meta_features=False, use_clones=True,
+                   use_features_in_secondary=False, use_probas=False,
+                   verbose=0)
+                   ```]]
+
+---
+# Stacking
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=stc);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_stc.png)]
+
+---
+# Stacking
+
+--
+count:false
+###Pros and Cons of Stacking
+- combines benefits of multiple learning types
+- easy to implement
+- tends to win competitions
+
+--
+count:false
+###Need to choose
+- member learners
+- meta-learner
+
+---
+# But which model is best?
+
+- For classification, .score defaults to accuracy: $\frac{TP + TN}{n}$
+
+--
+count:false
+.smaller[
+```python
+print(f'lr : {lr.score(X,y):.2f}')
+...
+```]
+.smaller[
+```
+*lr : 0.81
+svc: 0.85
+knn: 0.87
+*dtc: 0.98
+mlp: 0.83
+rfc: 0.96
+gbc: 0.97
+stc: 0.87
+```]
+
+--
+count:false
+What are we doing wrong here?
+
+---
+# But which model is best?
+
+- Using train_test_split
+
+.smaller[
+```python
+print(f'lr : {LogisticRegression().fit(X_train,y_train).score(X_test,y_test):.2f}')
+...
+```]
+--
+count:false
+.smaller[
+```
+*lr : 1.00
+svc: 0.92
+knn: 0.92
+*dtc: 0.62
+mlp: 0.92
+rfc: 0.77
+gbc: 0.77
+stc: 0.92
+```]
+
+--
+count:false
+**Next : Model Evaluation and Selection**
+
+
+---
+class:middle
+
+# Questions?
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+.center[![](images/wine_2class_lr.png)]
+
+---
+class:middle
+
+# Questions?
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+```python
+fig,ax = plt.subplots(1,1,figsize=(6,6))
+plot_decision_regions(X, y, clf=lr, legend=2);
+plt.xlabel(features[0]); plt.ylabel(features[1]);
+```]
+.center[![](images/wine_2class_lr.png)]
+
+---
+class:middle
+
+# Questions?
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
