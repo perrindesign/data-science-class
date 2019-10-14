@@ -992,6 +992,423 @@ In Binary Classification:
 From https://towardsdatascience.com/understanding-confusion-matrix-a9ad42dcfd62]
 
 ---
+# Classification: Accuracy
+
+<br>
+
+The number correct out of the total
+
+--
+count:false
+$$
+\text{accuracy}\left(\hat{y},y\right) = \frac{1}{n} \sum\_{i=1:n} \delta \left[\hat{y}\_i = y\_i\right]
+$$
+where
+$$
+\delta(a) = \begin{cases}
+1 &\text{if } a \text{ is true}, \\\\
+0 &\text{o.w.}
+\end{cases}
+$$
+
+---
+# Classification: Baseline Accuracy
+
+What's our simple guess?
+--
+count:false
+.smaller[
+```python
+sum(y_train == 1) / len(y_train)
+```]
+.smaller[
+```
+0.55
+```]
+
+--
+count:false
+.smaller[
+```python
+from sklearn.dummy import DummyClassifier
+
+dummy_cl = DummyClassifier(strategy='most_frequent')
+dummy_cl.fit(X_train,y_train)
+dummy_cl.predict([[0,0]])
+```]
+.smaller[
+```
+array([1])
+```]
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(dummy_cl,X_train,y_train,cv=5)
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```]
+.smaller[
+```
+0.55 +- 0.02
+```]
+
+
+---
+# Classification: LogReg Accuracy
+
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+logr = LogisticRegression()
+scores = cross_val_score(logr,X_train,y_train,cv=5)
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.82 +- 0.13
+```
+
+---
+# Classification: Error
+
+--
+count:false
+error = 1-accuracy
+
+--
+count:false
+
+Different kinds of error
+
+.center[
+![:scale 45%](images/confusion_matrix.png)
+]
+
+---
+# Precision vs. Recall
+
+### Precision
+
+Out of the ones predicted positive, how many are truly positive?
+
+$$
+\text{precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}
+$$
+
+--
+count:false
+### Recall
+
+Out of the truly positive, how many did I call positive?
+
+$$
+\text{recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}
+$$
+
+---
+# Precision-Recall Curve
+
+But how do we decide if something is positive or negative?
+
+--
+count:false
+
+Often, set a threshold :
+
+$$
+\hat{y}_i = \begin{cases}
+1 &\text{if } P(y_i=1|x_i) > \text{threshold}, \\\\
+0 &\text{o.w.}
+\end{cases}
+$$
+
+--
+count:false
+Usually, threshold = .5, but it doesn't have to be.
+
+
+--
+count:false
+What happens if we change it?
+
+---
+# Precision-Recall Curve
+
+--
+count:false
+1. Get class prediction probabilities
+--
+count:false
+2. Order by $P(y=1|x)$
+--
+count:false
+3. Move threshold for calling $x_i$ positive
+--
+count:false
+4. Record precision and recall
+
+---
+# Precision-Recall Curve
+
+--
+count:false
+.smallest[
+```python
+# return predicted class probabilities
+y_pred_logr = logr.predict_proba(X_train) 
+y_pred_logr[:3,:]
+```]
+.smallest[
+```
+array([[0.78, 0.22],
+       [0.15, 0.85],
+       [0.61, 0.39]])
+```]
+--
+count:false
+.smallest[
+```python
+# get a matrix of p(y_i=1) and y_i pairs
+tmp = np.transpose(np.vstack([y_pred_logr[:,1],y_train]))
+
+# sort by p(y_i=1) descending
+tmp = np.array(sorted(tmp,key=lambda x:x[0])[::-1])
+tmp[:3]
+```]
+.smallest[
+```
+array([[0.98, 1.  ],
+       [0.97, 1.  ],
+       [0.97, 1.  ]])
+```]
+--
+count:false
+.smallest[
+```python
+# or just let sklearn do it
+from sklearn.metrics import precision_recall_curve
+precision, recall, thresholds = precision_recall_curve(y_train, y_pred_logr[:,1])
+```]
+
+---
+# Precision-Recall Curve
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,2,figsize=(12,4))
+ax[0].step(recall, precision, color='b', alpha=0.2, where='post');
+ax[0].fill_between(recall, precision,color='b', step='post', alpha=0.2)
+ax[0].set_xlabel('Recall');ax[0].set_ylabel('Precision');
+ax[1].plot(thresholds,precision[:-1], label='Precision')
+ax[1].plot(thresholds,recall[:-1],label='Recall')
+ax[1].legend()
+ax[1].set_xlabel('threshold');ax[1].set_ylabel('measure');
+```]
+.center[![:scale 100%](images/precision_recall_curves.png)]
+
+
+---
+# f1-score
+
+--
+count:false
+- Usually, we just want one number to optimize
+
+--
+count:false
+- **f1-score**: harmonic mean of precision and recall
+--
+count:false
+  - eg. weighted average of the precision and recall
+
+$$
+F_1 = 2 \cdot \frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}
+$$
+
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(logr,X_train,y_train,cv=5,scoring='f1')
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.84 +- 0.11
+```]
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(dummy_cl,X_train,y_train,cv=5,scoring='f1')
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.71 +- 0.02
+```]
+
+---
+# ROC Curve
+
+- **R**eceiver **O**perating **C**haracteristic
+--
+count:false
+    - displays FPR vs TPR
+--
+count:false
+    - or (1-Specificity) vs. Sensitivity
+
+
+--
+count:false
+- True Positive Rate (TPR) = Sensitivity = Recall = $\frac{TP}{(TP + FN)}$
+
+
+--
+count:false
+- False Positive Rate (FPR) = (1 - Specificity) = $\frac{FP}{(TP + FP)}$
+
+
+--
+count:false
+- True Negative Rate (TNR) = Specificity = $\frac{TN}{(TN + FP)}$
+
+
+---
+# ROC Curve
+
+```python
+# again sklearn to the rescue
+from sklearn.metrics import roc_curve
+
+fpr_logr, tpr_logr, _ = roc_curve(y_train, y_pred_logr[:,1])
+```
+
+---
+# ROC Curve 
+
+```python
+def plot_roc(curves):
+    fig,ax = plt.subplots(1,1,figsize=(6,6))
+    lw = 2
+    for fpr,tpr,model_name in curves:
+        l1, = ax.plot(fpr, tpr, lw=lw, label=model_name)
+    ax.plot([0, 1], [0, 1], color='k', lw=lw, linestyle='--')
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel('False Positive Rate')
+    ax.set_ylabel('True Positive Rate')
+    ax.set_aspect('equal', 'box')
+    ax.set_title('Receiver operating characteristic example')
+    ax.legend()
+```
+
+---
+# ROC Curve
+
+.smallest[
+```python
+curves = [(fpr_logr,tpr_logr,'logr')]
+plot_roc(curves);
+```]
+.center[![:scale 45%](images/roc_curve_01.png)]
+
+---
+# ROC Curve
+
+.smallest[
+```python
+fpr\_dummy, tpr\_dummy, \_ = roc_curve(y_train, dc.predict\_proba(X\_train)[:,1]) # Compare dummy
+curves.append((fpr_dummy,tpr_dummy,'dummy')); plot_roc(curves);
+```]
+.center[![:scale 45%](images/roc_curve_02.png)]
+
+---
+# ROC Curve
+
+```python
+#Compare against knn
+from sklearn.neighbors import KNeighborsClassifier
+
+params = {'n_neighbors':[3,5,15,20]}
+gs_knn = GridSearchCV(KNeighborsClassifier(),
+                      params, 
+                      cv=5,
+                      scoring='f1')
+gs_knn.fit(X_train,y_train)
+y_pred_knn = gs_knn.predict_proba(X_train)
+print(gs_knn.best_params_)
+```
+```
+{'n_neighbors': 15}
+```
+
+---
+# ROC Curve
+.smallest[
+```python
+fpr\_knn, tpr\_knn, \_ = roc_curve(y\_train, y\_pred_knn[:,1])
+curves.append((fpr\_knn,tpr\_knn,'knn')); plot_roc(curves);
+```]
+.center[![:scale 45%](images/roc_curve_03.png)]
+
+---
+# ROC and AUC
+
+--
+count:false
+- But again, we'd like one number to optimize
+
+--
+count:false
+- **A**rea **U**nder the **C**urve
+
+--
+count:false
+```python
+from sklearn.metrics import auc
+
+for fpr,tpr,model in curves:
+    print('{:5s} auc = {:0.3f}'.format(model,auc(fpr,tpr)))
+```
+```
+logr  auc = 0.871
+dummy auc = 0.500
+knn   auc = 0.909
+```
+
+---
+# Evaluate for Generalization
+
+Once we're done fitting model, check against test set
+
+```python
+knn.score(X_test,y_test)
+```
+```
+0.69
+```
+
+---
+# Review: Steps to Choosing a Model
+- Create Held-Aside Set (Train/Test Split)
+- Determine Metric (or combination of metrics)
+- Get a Baseline for comparison
+- Use Cross-Validation to fit Hyperparameters and Choose Model
+- Evaluate Chosen Model on Held-Aside Set
+
+---
+# Review Classification Metrics
+
+- Confusion Matrix
+- Accuracy/Error
+- Precision
+- Recall
+- $F_1$ Score
+- ROC
+- AUC
+
+
+---
 # Aside: Single Features, Single Sample
 
 .smaller[
@@ -1028,6 +1445,9 @@ X_train.iloc[:,0].values.reshape(-1,1).shape
 ```
 (183, 1)
 ```]
+
+
+
 ---
 class:middle
 
