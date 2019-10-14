@@ -19,66 +19,31 @@ Elements of Data Science - F2019
 
 # Model Evaluation and Selection
 
-10/07/2019
+10/14/2019
 
 ---
 #In this lecture
 
-- Model Evaluation and Selection
-- Overfitting and Underfitting
-    - Train/Test split
-    - Validation Curve
-- Metrics: Regression
+.smallest[
+- Metrics: Regression Review
     - RMSE
     - R^2
-- Metrics: Classification
-    - Accuracy
-    - Confusion Matrix
-    - Precision
-    - Recall
-    - ROC
-    - AUC
+-  Overfitting and Underfitting
+    - Train/Test split
+    - Bias/Variance Tradeoff
 - Tuning Hyperparameters
     - Cross Validation
     - Grid Search
-
----
-# Sample Datasets
-
-.smallest[
-```python
-import pandas as pd
-import seaborn as sns
-from sklearn import datasets
-```]
-
-.smallest[
-```python
-tips = sns.load_dataset('tips')
-tips = sns.load_dataset('tips')
-X_tips = tips[['total_bill','size']]
-y_tips = tips.tip
-X_tips.shape, y_tips.shape
-```
-```
-((244, 2), (244,))
-```]
-
-.smallest[
-```python
-wine = datasets.load_wine()
-X_wine = pd.DataFrame(wine.data,columns=wine.feature_names)
-y_wine = wine.target
-
-features_wine = wine.feature_names[3:5]
-X_wine = X_wine.iloc[y_wine &lt; 2,3:5].apply(lambda x: (x-x.mean())/x.std()).values
-y_wine = y_wine[y_wine &lt; 2]
-X_wine.shape,y_wine.shape
-```]
-.smallest[
-```
-((130, 2), (130,))
-```]
+- Plotting Model Fit
+    - Validation Curve
+    - Learning Curve
+- Metrics: Classification
+    - Confusion Matrix
+    - Accuracy/Error
+    - Precision
+    - Recall
+    - ROC
+    - AUC]
 
 ---
 # Steps to Choosing a Model
@@ -112,10 +77,6 @@ count:false
 
 --
 count:false
-- often, $\hat{y} = \arg\max_y f(y,x)$
-
---
-count:false
 - often less interested in why than in how well
 
 
@@ -129,6 +90,70 @@ count:false
 - **Generalization**: 
    - how well will model predict on data that it hasn't seen yet
 
+---
+# Overfitting/Underfitting
+
+--
+count:false
+- **Overfitting**: poor generalization due to complexity
+    - learning noise in training data
+
+--
+count:false
+- **Underfitting**: poor generalization due to simplicity
+    - not flexibile enough to learn concept
+
+--
+count:false
+- Can we find a balance between simplicity and complexity?
+    - we want a balance between **bias** and **variance**
+
+---
+# Bias Variance Tradeoff
+
+.center[
+![](images/05.03-bias-variance.png)]
+
+---
+# Bias Variance Tradeoff
+
+.center[
+![](images/05.03-bias-variance-2.png)]
+
+
+---
+# Bias-Variance Tradeoff
+
+Q : What happens when we retrain model on different training sets?
+
+--
+count:false
+.center[
+![:scale 60%](images/bias_variance_targets.jpeg)]
+
+---
+# Bias-Variance Tradeoff
+<br>
+
+--
+.center[
+![:scale 60%](images/bias-variance-tradeoff.png)]
+
+
+---
+# Overfitting/Underfitting
+
+--
+count:false
+- **Overfitting**: poor generalization due to complexity
+    - learning noise in training data
+    - model has high **variance** and low **bias**
+
+--
+count:false
+- **Underfitting**: poor generalization due to simplicity
+    - not flexibile enough to learn concept
+    - model has high **bias** and low **variance**
 
 ---
 # Avoiding Overfitting/Underfitting
@@ -148,11 +173,13 @@ count:false
 count:false
 - Keep the model as simple as possible
     - Occom's Razor
+    - Increase Bias
 
 
 --
 count:false
 - **Underfitting**: poor generalization due to simplicity
+    - Increase Variance
 
 
 ---
@@ -212,6 +239,23 @@ count:false
     - depends on the dataset and the models being trained
 
 
+---
+# Sample Dataset: Regression
+
+.smallest[
+```python
+import pandas as pd
+import seaborn as sns
+```]
+
+.smallest[
+```python
+tips = sns.load_dataset('tips')
+tips = sns.load_dataset('tips')
+X_tips = tips[['total_bill','size']]
+y_tips = tips.tip
+```]
+
 
 ---
 # Regression: Train/Test Split
@@ -220,18 +264,18 @@ count:false
 count:false
 .smaller[
 ```python
-X_tips.shape, y_tips.shape
+X_tips.shape, y_tips.shape # original dataset
 ```]
 .smaller[
 ```
 ((244, 2), (244,))
 ```]
 
-<br>
 --
 count:false
 .smaller[
 ```python
+# split into a train and test set
 X_train,X_test,y_train,y_test = train_test_split(X_tips, y_tips, random_state=123)
 ```]
 
@@ -239,7 +283,7 @@ X_train,X_test,y_train,y_test = train_test_split(X_tips, y_tips, random_state=12
 count:false
 .smaller[
 ```python
-X_train.shape, X__test.shape
+X_train.shape, X_test.shape
 ```]
 .smaller[
 ```
@@ -257,31 +301,71 @@ y_train.shape, y_test.shape
 ((183,), (61,))
 ```]
 
+--
+count:false
+.smaller[
+```python
+X_test.shape[0]/X_tips.shape[0] # default size of test
+```]
+.smaller[
+```
+0.25
+```]
+
 ---
-# Regression: Metrics
+# Regression Metrics Review
 
 How well is our model doing?
 
+<br>
 --
 count:false
-- Root Mean Squared Error (RMSE) : describes accuracy
-
-.center[$RMSE = \sqrt{\frac{1}{n}\sum \left(\hat{y}_i - y_i\right)^2}$]
-
-
---
-count:false
-- $R^2$: describes amount of explained variance (sklearn default)
+- $R^2$: describes explained variance, want **higher** (sklearn default) 
 
 .center[$R^2 = 1 - \frac{\sum \left(\hat{y}_i - y_i\right)^2}{\sum \left(\bar{y} - y_i\right)^2}$]
 
-
+<br>
 --
 count:false
-- Adjusted $R^2$: takes into account number of parameters
+- Adjusted $R^2$: takes into account number of parameters, want **higher**
 .center[$R\_{adj}^2 = 1 - (1 - R^2)\frac{n}{n-m-1}$]
 
 
+---
+# Regression Metrics Review
+
+How well is our model doing?
+
+<br>
+--
+count:false
+- Mean Squared Error (MSE) : describes error, want **lower** 
+
+.center[$MSE = \frac{1}{n}\sum \left(\hat{y}_i - y_i\right)^2$]
+
+<br>
+--
+count:false
+- Root Mean Squared Error (RMSE) : in scale of y, want **lower** 
+
+.center[$RMSE = \sqrt{MSE}$]
+
+
+---
+# Baseline
+
+Before we begin, how well can we do with a simple guess?
+
+<br>
+--
+count:false
+
+> Simple guess for regression: return the mean of y
+
+<br>
+--
+count:false
+> Simple guess for classification: majority class
 
 ---
 # Regression: Baseline
@@ -297,10 +381,10 @@ dummy_reg = DummyRegressor().fit(X_train,y_train)
 --
 count:false
 ```python
-dummy_re.predict([[0,0], [1,1]])
+dummy_re.predict([[0,0], [1,1]]) # get predictions for 2 items
 ```
 ```
-array([2.98797814, 2.98797814])
+array([2.99, 2.99])
 ```
 
 --
@@ -309,7 +393,7 @@ count:false
 y_train.mean()
 ```
 ```
-2.9879781420765026
+2.99
 ```
 
 --
@@ -318,11 +402,11 @@ count:false
 dummy_reg.score(X_test,y_test)
 ```
 ```
--0.001154933013596926
+-0.00
 ```
 
 ---
-# Regression: Baseline $R^2$
+# Regression: Baseline Adj-$R^2$
 
 --
 count:false
@@ -342,7 +426,7 @@ count:false
 r2_score(y_hat,y_test)
 ```
 ```
--0.001154933013596926
+-0.00
 ```
 
 
@@ -358,7 +442,7 @@ count:false
 adj_r2_score(r2_score(y_test,y_hat),*X_test.shape)
 ```
 ```
--0.05293880885912783
+-0.05
 ```
 
 ---
@@ -375,7 +459,7 @@ count:false
 mean_squared_error(y_test,y_hat)
 ```
 ```
-1.4715838334975666
+1.47
 ```
 
 --
@@ -391,7 +475,7 @@ count:false
 rmse(mean_squared_error(y_test,y_hat))
 ```
 ```
-1.2130885513834373
+1.21
 ```
 
 
@@ -416,7 +500,7 @@ count:false
 linr.score(X_test,y_test)
 ```
 ```
-0.4697819853335495
+0.47
 ```
 
 --
@@ -425,7 +509,7 @@ count:false
 adj_r2_score(linr.score(X_test,y_test),*X_test.shape)
 ```
 ```
-0.4423569156094227
+0.44
 ```
 
 --
@@ -434,8 +518,478 @@ count:false
 rmse(mean_squared_error(y_test,linr.predict(X_test)))
 ```
 ```
-0.8828137684958168
+0.88
 ```
+
+---
+# Cross Validation
+
+But how can we be sure our test/validation set is representative?
+
+Is there some way we could get an average across multiple test sets?
+
+--
+count:false
+### $k$-Fold Cross Validation
+
+--
+count:false
+1. split dataset into $k$ subsets
+--
+count:false
+2. for each subset
+--
+count:false
+    - train on the other $k-1$ subsets
+--
+count:false
+    - test on this subset to get a score
+--
+count:false
+3. average across all scores
+
+
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_1.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_2.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_3.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_4.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_5.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_6.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_7.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_8.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_9.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_10.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_11.png)]
+
+---
+# 10-Fold Cross Validation
+
+.center[
+![:scale 100%](images/cv10fold.png)]
+
+---
+# Cross Validation
+
+--
+count:false
+- Can be used for:
+    - tuning hyperparameters
+    - model selection
+    - any time we need estimate of model performance
+
+--
+count:false
+- Issue: each fold requires training the model
+
+--
+count:false
+- What values can $k$ take?
+--
+count:false
+    - min: 2
+--
+count:false
+    - max: $n$ (Leave-One-Out CV)
+
+---
+# Cross Validation in Sklearn
+
+```python
+from sklearn.model_selection import cross_val_score
+```
+
+--
+count:false
+```python
+# using r2_score
+scores = cross_val_score(linr, X_train, y_train, cv=5,
+scores
+```
+```
+array([0.53, 0.61, 0.51, 0.25, 0.42])
+```
+
+--
+count:false
+```python
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.47 +- 0.24
+```
+
+---
+# Cross Validation in Sklearn
+
+```python
+# using mean squared error (note: neg due to maximization)
+scores = cross_val_score(linr, X_train, y_train, cv=5,
+                         scoring='neg_mean_squared_error')
+-scores
+```
+```
+array([0.78, 0.63, 0.72, 1.78, 1.31])
+```
+
+--
+count:false
+```python
+print(f'{np.mean(-scores)} +- {2*np.std(scores)}')
+```
+```
+1.04 +- 0.88
+```
+
+---
+# Compare Models with CV
+
+```python
+from sklearn.linear_model import Lasso
+lasso = Lasso(alpha=1.0)
+```
+--
+count:false
+```python
+scores = cross_val_score(lasso, X_train, y_train, cv=5,
+                         scoring='neg_mean_squared_error')
+-scores
+```
+```
+array([2.11, 0.99, 1.  , 0.73, 1.18])
+```
+--
+count:false
+```python
+print(f'{np.mean(-scores)} +- {2*np.std(scores)}')
+```
+```
+1.20 +- 0.95
+```
+
+---
+# Tuning Hyperparameters with CV
+
+```python
+mean_scores = []
+for alpha in [.01, .1, .5, .9, .99, 1]:
+    lasso = Lasso(alpha=alpha)
+    scores = cross_val_score(lasso,X_train,y_train,cv=5,
+                             scoring='neg_mean_squared_error')
+    mean_scores.append( (alpha,-np.mean(scores)) )
+```
+--
+count:false
+```python
+# find the setting with the lowest mse
+sorted(mean_scores,key=lambda x:x[1])[0]
+```
+```
+(0.01, 1.17)
+```
+
+---
+# Tuning Hyperparameters with CV
+
+```python
+from sklearn.linear_model import LassoCV
+```
+--
+count:false
+```python
+alphas = [.01, .1, .5, .9, .99, 1]
+lassocv = LassoCV(alphas=alphas,cv=5).fit(X_train,y_train)
+```
+--
+count:false
+```python
+lassocv.alpha_
+```
+```
+0.01
+```
+
+---
+# Visualize Hyperparameter Tuning
+
+### Validation Curve
+.center[
+![](images/05.03-validation-curve.png)]
+
+---
+# Visualize Hyperparameter Tuning
+
+```python
+from sklearn.model_selection import validation_curve
+
+depths = np.arange(1,15)
+train_scores,test_scores = validation_curve(DecisionTreeRegressor(),
+                                            X_train, y_train,
+                                            'max_depth',
+                                            depths,
+                                            cv=5,
+                                            scoring='r2'
+                                           )
+mean_train_scores = np.mean(train_scores,1)
+mean_test_scores = np.mean(test_scores,1)
+```
+
+---
+# Visualize Hyperparameter Tuning
+
+.smallest[
+```python
+plt.plot(depth, mean_train_scores, 'o-', color='b',label='training score');
+plt.plot(depth, mean_test_scores, 'o-', color='r', label='validation score');
+plt.xlabel('max_depth'), plt.ylabel('r2_score');
+plt.title('Validation Curve for DecisionTreeRegressor');
+plt.hlines(0,0,14,ls=':'); plt.legend(loc='best');
+```]
+.center[![:scale 60%](images/validation_curve.png)]
+
+
+---
+# More Than One Parameter?
+
+**GridSearch:** Search over a 'grid' of hyperparameter settings
+
+- Example: Random Forest
+    - number of trees
+    - max depth
+
+```python
+from sklearn.ensemble import RandomForestRegressor
+```
+
+---
+# GridSearch with CV
+--
+count:false
+.smaller[
+```python
+from sklearn.model_selection import GridSearchCV
+```]
+
+--
+count:false
+.smaller[
+```python
+params = {'n_estimators':[5,10,20],
+          'max_depth': [3,5,10]}
+```]
+--
+count:false
+.smaller[
+```python
+gscv = GridSearchCV(RandomForestRegressor(),params,cv=3,
+                    scoring='neg_mean_squared_error')
+gscv.fit(X_train,y_train)
+```]
+--
+count:false
+.smaller[
+```python
+print(gscv.best_params_)
+```]
+--
+count:false
+.smaller[
+```
+{'max_depth': 3, 'n_estimators': 20}
+```]
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(gscv.best_estimator_,X_train,y_train,cv=5,
+                         scoring='neg_mean_squared_error')
+print(f'{np.mean(-scores)} +- {2*np.std(scores)}')
+```]
+.smaller[
+```
+1.38 +- 1.31
+```]
+
+---
+# What's the effect of dataset size?
+
+### Learning Curve
+.center[
+![](images/05.03-learning-curve.png)]
+
+
+---
+# What's the effect of dataset size?
+
+.smaller[
+```python
+from sklearn.model_selection import learning_curve
+
+train_sizes,train_scores,test_scores = learning_curve(gscv.best_estimator_,
+                                                      X_train, y_train,
+                                                      cv=5,
+                                                      scoring='r2'
+                                                     )
+mean_train_scores = np.mean(train_scores,1)
+mean_test_scores = np.mean(test_scores,1)
+```]
+
+---
+# What's the effect of dataset size?
+.smallest[
+```python
+plt.plot(train_sizes, mean_train_scores, 'o-', color="b", label="training score");
+plt.plot(train_sizes, mean_test_scores, 'o-', color="r", label="validation score")
+plt.xlabel('training set size'), plt.ylabel('r2_score');
+plt.title('Learning Curve for DecisionTreeRegressor');
+plt.legend(loc="best");
+```]
+.center[
+![:scale 60%](images/learning_curve.png)]
+
+---
+# Review So Far
+
+.smaller[
+- Overfitting and Underfitting
+  - Bias/Variance Tradeoff
+  - Train/Test split
+- Model Selection
+  - Baseline
+- Tuning Hyperparameters
+  - Cross Validation
+  - Grid Search
+- Plotting Model Fit
+  - Validation Curve
+  - Learning Curve]
+
+### .center[Questions?]
+
+---
+# Next Up: Classification
+
+.smaller[
+- Metrics: Classification
+ - Confusion Matrix
+ - Accuracy/Error
+ - Precision
+ - Recall
+ - ROC
+ - AUC]
+
+---
+# Sample Dataset: Classification
+
+
+.smallest[
+```python
+from sklearn import datasets
+```]
+.smallest[
+```python
+wine = datasets.load_wine()
+X_wine = pd.DataFrame(wine.data,columns=wine.feature_names)
+y_wine = wine.target
+
+features_wine = wine.feature_names[3:5]
+X_wine = X_wine.iloc[y_wine &lt; 2,3:5].apply(lambda x: (x-x.mean())/x.std()).values
+y_wine = y_wine[y_wine &lt; 2]
+X_wine.shape,y_wine.shape
+```]
+.smallest[
+```
+((130, 2), (130,))
+```]
+
+.smallest[
+```python
+# split into a train and test set
+X_train,X_test,y_train,y_test = train_test_split(X_wine,y_wine,
+                                                 stratify=y_wine,
+                                                 test_size=.1,
+                                                 random_state=123)
+```]
+
+--
+count:false
+.smallest[
+```python
+X_train.shape, X_test.shape
+```]
+.smallest[
+```
+((117, 2), (13, 2))
+```]
+
+--
+count:false
+.smaller[
+```python
+y_train.shape, y_test.shape
+```]
+.smaller[
+```
+((117,), (13,))
+```]
+
+---
+# Classification: Confusion Matrix
+
+What are the different ways we can get things wrong?
+
+<br>
+--
+count:false
+In Binary Classification:
+.center[
+![:scale 45%](images/confusion_matrix.png)
+]
+<br>
+.smallest[
+From https://towardsdatascience.com/understanding-confusion-matrix-a9ad42dcfd62]
 
 ---
 # Aside: Single Features, Single Sample
@@ -474,10 +1028,6 @@ X_train.iloc[:,0].values.reshape(-1,1).shape
 ```
 (183, 1)
 ```]
-
-
-
-
 ---
 class:middle
 
