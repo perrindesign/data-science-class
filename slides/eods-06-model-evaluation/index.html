@@ -109,7 +109,7 @@ count:false
     - we want a balance between **bias** and **variance**
 
 ---
-# Bias Variance Tradeoff
+# Bias-Variance Tradeoff
 
 .center[
 ![](images/05.03-bias-variance.png)]
@@ -242,19 +242,17 @@ count:false
 ---
 # Sample Dataset: Regression
 
-.smallest[
 ```python
 import pandas as pd
 import seaborn as sns
-```]
+```
 
-.smallest[
 ```python
 tips = sns.load_dataset('tips')
 tips = sns.load_dataset('tips')
 X_tips = tips[['total_bill','size']]
 y_tips = tips.tip
-```]
+```
 
 
 ---
@@ -1365,15 +1363,20 @@ count:false
 --
 count:false
 ```python
-from sklearn.metrics import auc
-
-for fpr,tpr,model in curves:
-    print('{:5s} auc = {:0.3f}'.format(model,auc(fpr,tpr)))
+from sklearn.metrics import roc_auc_score
+```
+--
+count:false
+```python
+for name,model in [('dummy',dc),('logr',logr),('knn',knn)]:
+    y_pred = model.predict_proba(X_train)
+    auc = roc_auc_score(y_train,y_pred[:,1])
+    print('{:5s} auc = {:0.3f}'.format(name,auc))
 ```
 ```
-logr  auc = 0.871
-dummy auc = 0.500
-knn   auc = 0.909
+dummy auc = 0.50
+logr  auc = 0.87
+knn   auc = 0.94
 ```
 
 ---
