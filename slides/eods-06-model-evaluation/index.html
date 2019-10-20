@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Model Evaluation and Selection</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Model Evaluation and Selection
+
+10/14/2019
+
+---
+#In this lecture
+
+.smallest[
+- Metrics: Regression Review
+    - RMSE
+    - R^2
+-  Overfitting and Underfitting
+    - Train/Test split
+    - Bias/Variance Tradeoff
+- Tuning Hyperparameters
+    - Cross Validation
+    - Grid Search
+- Plotting Model Fit
+    - Validation Curve
+    - Learning Curve
+- Metrics: Classification
+    - Confusion Matrix
+    - Accuracy/Error
+    - Precision
+    - Recall
+    - ROC
+    - AUC]
+
+---
+# Steps to Choosing a Model
+
+
+--
+count:false
+1. Create Held-Aside Set (Train/Test Split)
+
+--
+count:false
+2. Determine Metric (or combination of metrics)
+
+--
+count:false
+2. Get a Baseline for comparison
+
+--
+count:false
+3. Use Cross-Validation to fit Hyperparameters and Choose Model
+
+--
+count:false
+4. Evaluate Chosen Model on Held-Aside Set 
+---
+# Goal of Prediction
+
+--
+count:false
+- Given an item $x$, predict a value $\hat{y}$
+
+--
+count:false
+- often less interested in why than in how well
+
+
+
+--
+count:false
+- How well will model generalize?
+
+--
+count:false
+- **Generalization**: 
+   - how well will model predict on data that it hasn't seen yet
+
+---
+# Overfitting/Underfitting
+
+--
+count:false
+- **Overfitting**: poor generalization due to complexity
+    - learning noise in training data
+
+--
+count:false
+- **Underfitting**: poor generalization due to simplicity
+    - not flexibile enough to learn concept
+
+--
+count:false
+- Can we find a balance between simplicity and complexity?
+    - we want a balance between **bias** and **variance**
+
+---
+# Bias-Variance Tradeoff
+
+.center[
+![](images/05.03-bias-variance.png)]
+
+---
+# Bias Variance Tradeoff
+
+.center[
+![](images/05.03-bias-variance-2.png)]
+
+
+---
+# Bias-Variance Tradeoff
+
+Q : What happens when we retrain model on different training sets?
+
+--
+count:false
+.center[
+![:scale 60%](images/bias_variance_targets.jpeg)]
+
+---
+# Bias-Variance Tradeoff
+<br>
+
+--
+.center[
+![:scale 60%](images/bias-variance-tradeoff.png)]
+
+
+---
+# Overfitting/Underfitting
+
+--
+count:false
+- **Overfitting**: poor generalization due to complexity
+    - learning noise in training data
+    - model has high **variance** and low **bias**
+
+--
+count:false
+- **Underfitting**: poor generalization due to simplicity
+    - not flexibile enough to learn concept
+    - model has high **bias** and low **variance**
+
+---
+# Avoiding Overfitting/Underfitting
+
+--
+count:false
+- **Overfitting**: poor generalization due to complexity
+    - learning noise in training leading to poor generalization
+
+--
+count:false
+- Never train and evaluate on the same set of data!
+    - train test split
+    - cross-validation
+
+--
+count:false
+- Keep the model as simple as possible
+    - Occom's Razor
+    - Increase Bias
+
+
+--
+count:false
+- **Underfitting**: poor generalization due to simplicity
+    - Increase Variance
+
+
+---
+# Train/Test Split
+
+
+--
+count:false
+.center[![](images/train_test_split.png)]
+<br>
+
+
+--
+count:false
+- Training set: portion of dataset used for training
+
+--
+count:false
+- Test or Held-aside set: portion of the dateset used for evaluation
+
+
+--
+count:false
+- Want your test set to reflect the same distribution as training
+
+--
+count:false
+.smallest[From https://www.researchgate.net/figure/Train-Test-Data-Split_fig6_325870973]
+
+---
+# Train/Test Split
+--
+count:false
+.smaller[
+```python
+from sklearn.model_selection import train_test_split
+
+X_train,X_test,y_train,y_test = train_test_split(X,
+                                                 y,
+                                                 test_size=.1,
+                                                 stratify=y,
+                                                 random_state=123)
+```]
+
+
+--
+count:false
+- stratify: maintain the same class distribution
+
+--
+count:false
+- random_state: only use for testing code (get same split every time)
+
+--
+count:false
+- How big should test be? Large enough to capture variance of dataset.
+    - depends on the dataset and the models being trained
+
+
+---
+# Sample Dataset: Regression
+
+```python
+import pandas as pd
+import seaborn as sns
+```
+
+```python
+tips = sns.load_dataset('tips')
+tips = sns.load_dataset('tips')
+X_tips = tips[['total_bill','size']]
+y_tips = tips.tip
+```
+
+
+---
+# Regression: Train/Test Split
+
+--
+count:false
+.smaller[
+```python
+X_tips.shape, y_tips.shape # original dataset
+```]
+.smaller[
+```
+((244, 2), (244,))
+```]
+
+--
+count:false
+.smaller[
+```python
+# split into a train and test set
+X_train,X_test,y_train,y_test = train_test_split(X_tips, y_tips, random_state=123)
+```]
+
+--
+count:false
+.smaller[
+```python
+X_train.shape, X_test.shape
+```]
+.smaller[
+```
+((183, 2), (61, 2))
+```]
+
+--
+count:false
+.smaller[
+```python
+y_train.shape, y_test.shape
+```]
+.smaller[
+```
+((183,), (61,))
+```]
+
+--
+count:false
+.smaller[
+```python
+X_test.shape[0]/X_tips.shape[0] # default size of test
+```]
+.smaller[
+```
+0.25
+```]
+
+---
+# Regression Metrics Review
+
+How well is our model doing?
+
+<br>
+--
+count:false
+- $R^2$: describes explained variance, want **higher** (sklearn default) 
+
+.center[$R^2 = 1 - \frac{\sum \left(\hat{y}_i - y_i\right)^2}{\sum \left(\bar{y} - y_i\right)^2}$]
+
+<br>
+--
+count:false
+- Adjusted $R^2$: takes into account number of parameters, want **higher**
+.center[$R\_{adj}^2 = 1 - (1 - R^2)\frac{n}{n-m-1}$]
+
+
+---
+# Regression Metrics Review
+
+How well is our model doing?
+
+<br>
+--
+count:false
+- Mean Squared Error (MSE) : describes error, want **lower** 
+
+.center[$MSE = \frac{1}{n}\sum \left(\hat{y}_i - y_i\right)^2$]
+
+<br>
+--
+count:false
+- Root Mean Squared Error (RMSE) : in scale of y, want **lower** 
+
+.center[$RMSE = \sqrt{MSE}$]
+
+
+---
+# Baseline
+
+Before we begin, how well can we do with a simple guess?
+
+<br>
+--
+count:false
+
+> Simple guess for regression: return the mean of y
+
+<br>
+--
+count:false
+> Simple guess for classification: majority class
+
+---
+# Regression: Baseline
+
+--
+count:false
+```python
+from sklearn.dummy import DummyRegressor
+
+dummy_reg = DummyRegressor().fit(X_train,y_train)
+```
+
+--
+count:false
+```python
+dummy_re.predict([[0,0], [1,1]]) # get predictions for 2 items
+```
+```
+array([2.99, 2.99])
+```
+
+--
+count:false
+```python
+y_train.mean()
+```
+```
+2.99
+```
+
+--
+count:false
+```python
+dummy_reg.score(X_test,y_test)
+```
+```
+-0.00
+```
+
+---
+# Regression: Baseline Adj-$R^2$
+
+--
+count:false
+```python
+from sklearn.metrics import r2_score
+```
+
+--
+count:false
+```python
+yhat = dummy_reg.predict(X_test) # get predictions
+```
+
+--
+count:false
+```python
+r2_score(y_hat,y_test)
+```
+```
+-0.00
+```
+
+
+--
+count:false
+```python
+def adj_r2_score(r2,num_items,num_parameters):
+    return 1 - (1-r2)*num_items/(num_items-num_parameters-1)
+```
+--
+count:false
+```python
+adj_r2_score(r2_score(y_test,y_hat),*X_test.shape)
+```
+```
+-0.05
+```
+
+---
+# Regression: Baseline RMSE
+
+--
+count:false
+```python
+from sklearn.metrics import mean_squared_error
+```
+--
+count:false
+```python
+mean_squared_error(y_test,y_hat)
+```
+```
+1.47
+```
+
+--
+count:false
+```python
+def rmse(mse)
+    return np.sqrt(mse)
+```
+
+--
+count:false
+```python
+rmse(mean_squared_error(y_test,y_hat))
+```
+```
+1.21
+```
+
+
+---
+# Regression: Linear Regression
+
+--
+count:false
+```python
+from sklearn.linear_model import LinearRegression
+```
+
+--
+count:false
+```python
+linr = LinearRegression().fit(X_train,y_train)
+```
+
+--
+count:false
+```python
+linr.score(X_test,y_test)
+```
+```
+0.47
+```
+
+--
+count:false
+```python
+adj_r2_score(linr.score(X_test,y_test),*X_test.shape)
+```
+```
+0.44
+```
+
+--
+count:false
+```python
+rmse(mean_squared_error(y_test,linr.predict(X_test)))
+```
+```
+0.88
+```
+
+---
+# Cross Validation
+
+But how can we be sure our test/validation set is representative?
+
+Is there some way we could get an average across multiple test sets?
+
+--
+count:false
+### $k$-Fold Cross Validation
+
+--
+count:false
+1. split dataset into $k$ subsets
+--
+count:false
+2. for each subset
+--
+count:false
+    - train on the other $k-1$ subsets
+--
+count:false
+    - test on this subset to get a score
+--
+count:false
+3. average across all scores
+
+
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_1.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_2.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_3.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_4.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_5.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_6.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_7.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_8.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_9.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_10.png)]
+
+---
+# 3-Fold Cross Validation
+.center[
+![](images/cv_11.png)]
+
+---
+# 10-Fold Cross Validation
+
+.center[
+![:scale 100%](images/cv10fold.png)]
+
+---
+# Cross Validation
+
+--
+count:false
+- Can be used for:
+    - tuning hyperparameters
+    - model selection
+    - any time we need estimate of model performance
+
+--
+count:false
+- Issue: each fold requires training the model
+
+--
+count:false
+- What values can $k$ take?
+--
+count:false
+    - min: 2
+--
+count:false
+    - max: $n$ (Leave-One-Out CV)
+
+---
+# Cross Validation in Sklearn
+
+```python
+from sklearn.model_selection import cross_val_score
+```
+
+--
+count:false
+```python
+# using r2_score
+scores = cross_val_score(linr, X_train, y_train, cv=5,
+scores
+```
+```
+array([0.53, 0.61, 0.51, 0.25, 0.42])
+```
+
+--
+count:false
+```python
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.47 +- 0.24
+```
+
+---
+# Cross Validation in Sklearn
+
+```python
+# using mean squared error (note: neg due to maximization)
+scores = cross_val_score(linr, X_train, y_train, cv=5,
+                         scoring='neg_mean_squared_error')
+-scores
+```
+```
+array([0.78, 0.63, 0.72, 1.78, 1.31])
+```
+
+--
+count:false
+```python
+print(f'{np.mean(-scores)} +- {2*np.std(scores)}')
+```
+```
+1.04 +- 0.88
+```
+
+---
+# Compare Models with CV
+
+```python
+from sklearn.linear_model import Lasso
+lasso = Lasso(alpha=1.0)
+```
+--
+count:false
+```python
+scores = cross_val_score(lasso, X_train, y_train, cv=5,
+                         scoring='neg_mean_squared_error')
+-scores
+```
+```
+array([2.11, 0.99, 1.  , 0.73, 1.18])
+```
+--
+count:false
+```python
+print(f'{np.mean(-scores)} +- {2*np.std(scores)}')
+```
+```
+1.20 +- 0.95
+```
+
+---
+# Tuning Hyperparameters with CV
+
+```python
+mean_scores = []
+for alpha in [.01, .1, .5, .9, .99, 1]:
+    lasso = Lasso(alpha=alpha)
+    scores = cross_val_score(lasso,X_train,y_train,cv=5,
+                             scoring='neg_mean_squared_error')
+    mean_scores.append( (alpha,-np.mean(scores)) )
+```
+--
+count:false
+```python
+# find the setting with the lowest mse
+sorted(mean_scores,key=lambda x:x[1])[0]
+```
+```
+(0.01, 1.17)
+```
+
+---
+# Tuning Hyperparameters with CV
+
+```python
+from sklearn.linear_model import LassoCV
+```
+--
+count:false
+```python
+alphas = [.01, .1, .5, .9, .99, 1]
+lassocv = LassoCV(alphas=alphas,cv=5).fit(X_train,y_train)
+```
+--
+count:false
+```python
+lassocv.alpha_
+```
+```
+0.01
+```
+
+---
+# Visualize Hyperparameter Tuning
+
+### Validation Curve
+.center[
+![](images/05.03-validation-curve.png)]
+
+---
+# Visualize Hyperparameter Tuning
+
+```python
+from sklearn.model_selection import validation_curve
+
+depths = np.arange(1,15)
+train_scores,test_scores = validation_curve(DecisionTreeRegressor(),
+                                            X_train, y_train,
+                                            'max_depth',
+                                            depths,
+                                            cv=5,
+                                            scoring='r2'
+                                           )
+mean_train_scores = np.mean(train_scores,1)
+mean_test_scores = np.mean(test_scores,1)
+```
+
+---
+# Visualize Hyperparameter Tuning
+
+.smallest[
+```python
+plt.plot(depth, mean_train_scores, 'o-', color='b',label='training score');
+plt.plot(depth, mean_test_scores, 'o-', color='r', label='validation score');
+plt.xlabel('max_depth'), plt.ylabel('r2_score');
+plt.title('Validation Curve for DecisionTreeRegressor');
+plt.hlines(0,0,14,ls=':'); plt.legend(loc='best');
+```]
+.center[![:scale 60%](images/validation_curve.png)]
+
+
+---
+# More Than One Parameter?
+
+**GridSearch:** Search over a 'grid' of hyperparameter settings
+
+- Example: Random Forest
+    - number of trees
+    - max depth
+
+```python
+from sklearn.ensemble import RandomForestRegressor
+```
+
+---
+# GridSearch with CV
+--
+count:false
+.smaller[
+```python
+from sklearn.model_selection import GridSearchCV
+```]
+
+--
+count:false
+.smaller[
+```python
+params = {'n_estimators':[5,10,20],
+          'max_depth': [3,5,10]}
+```]
+--
+count:false
+.smaller[
+```python
+gscv = GridSearchCV(RandomForestRegressor(),params,cv=3,
+                    scoring='neg_mean_squared_error')
+gscv.fit(X_train,y_train)
+```]
+--
+count:false
+.smaller[
+```python
+print(gscv.best_params_)
+```]
+--
+count:false
+.smaller[
+```
+{'max_depth': 3, 'n_estimators': 20}
+```]
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(gscv.best_estimator_,X_train,y_train,cv=5,
+                         scoring='neg_mean_squared_error')
+print(f'{np.mean(-scores)} +- {2*np.std(scores)}')
+```]
+.smaller[
+```
+1.38 +- 1.31
+```]
+
+---
+# What's the effect of dataset size?
+
+### Learning Curve
+.center[
+![](images/05.03-learning-curve.png)]
+
+
+---
+# What's the effect of dataset size?
+
+.smaller[
+```python
+from sklearn.model_selection import learning_curve
+
+train_sizes,train_scores,test_scores = learning_curve(gscv.best_estimator_,
+                                                      X_train, y_train,
+                                                      cv=5,
+                                                      scoring='r2'
+                                                     )
+mean_train_scores = np.mean(train_scores,1)
+mean_test_scores = np.mean(test_scores,1)
+```]
+
+---
+# What's the effect of dataset size?
+.smallest[
+```python
+plt.plot(train_sizes, mean_train_scores, 'o-', color="b", label="training score");
+plt.plot(train_sizes, mean_test_scores, 'o-', color="r", label="validation score")
+plt.xlabel('training set size'), plt.ylabel('r2_score');
+plt.title('Learning Curve for DecisionTreeRegressor');
+plt.legend(loc="best");
+```]
+.center[
+![:scale 60%](images/learning_curve.png)]
+
+---
+# Review So Far
+
+.smaller[
+- Overfitting and Underfitting
+  - Bias/Variance Tradeoff
+  - Train/Test split
+- Model Selection
+  - Baseline
+- Tuning Hyperparameters
+  - Cross Validation
+  - Grid Search
+- Plotting Model Fit
+  - Validation Curve
+  - Learning Curve]
+
+### .center[Questions?]
+
+---
+# Next Up: Classification
+
+.smaller[
+- Metrics: Classification
+ - Confusion Matrix
+ - Accuracy/Error
+ - Precision
+ - Recall
+ - ROC
+ - AUC]
+
+---
+# Sample Dataset: Classification
+
+
+.smallest[
+```python
+from sklearn import datasets
+```]
+.smallest[
+```python
+wine = datasets.load_wine()
+X_wine = pd.DataFrame(wine.data,columns=wine.feature_names)
+y_wine = wine.target
+
+features_wine = wine.feature_names[3:5]
+X_wine = X_wine.iloc[y_wine &lt; 2,3:5].apply(lambda x: (x-x.mean())/x.std()).values
+y_wine = y_wine[y_wine &lt; 2]
+X_wine.shape,y_wine.shape
+```]
+.smallest[
+```
+((130, 2), (130,))
+```]
+
+.smallest[
+```python
+# split into a train and test set
+X_train,X_test,y_train,y_test = train_test_split(X_wine,y_wine,
+                                                 stratify=y_wine,
+                                                 test_size=.1,
+                                                 random_state=123)
+```]
+
+--
+count:false
+.smallest[
+```python
+X_train.shape, X_test.shape
+```]
+.smallest[
+```
+((117, 2), (13, 2))
+```]
+
+--
+count:false
+.smaller[
+```python
+y_train.shape, y_test.shape
+```]
+.smaller[
+```
+((117,), (13,))
+```]
+
+---
+# Classification: Confusion Matrix
+
+What are the different ways we can get things wrong?
+
+<br>
+--
+count:false
+In Binary Classification:
+.center[
+![:scale 45%](images/confusion_matrix.png)
+]
+<br>
+.smallest[
+From https://towardsdatascience.com/understanding-confusion-matrix-a9ad42dcfd62]
+
+---
+# Classification: Accuracy
+
+<br>
+
+The number correct out of the total
+
+--
+count:false
+$$
+\text{accuracy}\left(\hat{y},y\right) = \frac{1}{n} \sum\_{i=1:n} \delta \left[\hat{y}\_i = y\_i\right]
+$$
+where
+$$
+\delta(a) = \begin{cases}
+1 &\text{if } a \text{ is true}, \\\\
+0 &\text{o.w.}
+\end{cases}
+$$
+
+---
+# Classification: Baseline Accuracy
+
+What's our simple guess?
+--
+count:false
+.smaller[
+```python
+sum(y_train == 1) / len(y_train)
+```]
+.smaller[
+```
+0.55
+```]
+
+--
+count:false
+.smaller[
+```python
+from sklearn.dummy import DummyClassifier
+
+dummy_cl = DummyClassifier(strategy='most_frequent')
+dummy_cl.fit(X_train,y_train)
+dummy_cl.predict([[0,0]])
+```]
+.smaller[
+```
+array([1])
+```]
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(dummy_cl,X_train,y_train,cv=5)
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```]
+.smaller[
+```
+0.55 +- 0.02
+```]
+
+
+---
+# Classification: LogReg Accuracy
+
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+logr = LogisticRegression()
+scores = cross_val_score(logr,X_train,y_train,cv=5)
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.82 +- 0.13
+```
+
+---
+# Classification: Error
+
+--
+count:false
+error = 1-accuracy
+
+--
+count:false
+
+Different kinds of error
+
+.center[
+![:scale 45%](images/confusion_matrix.png)
+]
+
+---
+# Precision vs. Recall
+
+### Precision
+
+Out of the ones predicted positive, how many are truly positive?
+
+$$
+\text{precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}
+$$
+
+--
+count:false
+### Recall
+
+Out of the truly positive, how many did I call positive?
+
+$$
+\text{recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}
+$$
+
+---
+# Precision-Recall Curve
+
+But how do we decide if something is positive or negative?
+
+--
+count:false
+
+Often, set a threshold :
+
+$$
+\hat{y}_i = \begin{cases}
+1 &\text{if } P(y_i=1|x_i) > \text{threshold}, \\\\
+0 &\text{o.w.}
+\end{cases}
+$$
+
+--
+count:false
+Usually, threshold = .5, but it doesn't have to be.
+
+
+--
+count:false
+What happens if we change it?
+
+---
+# Precision-Recall Curve
+
+--
+count:false
+1. Get class prediction probabilities
+--
+count:false
+2. Order by $P(y=1|x)$
+--
+count:false
+3. Move threshold for calling $x_i$ positive
+--
+count:false
+4. Record precision and recall
+
+---
+# Precision-Recall Curve
+
+--
+count:false
+.smallest[
+```python
+# return predicted class probabilities
+y_pred_logr = logr.predict_proba(X_train) 
+y_pred_logr[:3,:]
+```]
+.smallest[
+```
+array([[0.78, 0.22],
+       [0.15, 0.85],
+       [0.61, 0.39]])
+```]
+--
+count:false
+.smallest[
+```python
+# get a matrix of p(y_i=1) and y_i pairs
+tmp = np.transpose(np.vstack([y_pred_logr[:,1],y_train]))
+
+# sort by p(y_i=1) descending
+tmp = np.array(sorted(tmp,key=lambda x:x[0])[::-1])
+tmp[:3]
+```]
+.smallest[
+```
+array([[0.98, 1.  ],
+       [0.97, 1.  ],
+       [0.97, 1.  ]])
+```]
+--
+count:false
+.smallest[
+```python
+# or just let sklearn do it
+from sklearn.metrics import precision_recall_curve
+precision, recall, thresholds = precision_recall_curve(y_train, y_pred_logr[:,1])
+```]
+
+---
+# Precision-Recall Curve
+
+.smallest[
+```python
+fig,ax = plt.subplots(1,2,figsize=(12,4))
+ax[0].step(recall, precision, color='b', alpha=0.2, where='post');
+ax[0].fill_between(recall, precision,color='b', step='post', alpha=0.2)
+ax[0].set_xlabel('Recall');ax[0].set_ylabel('Precision');
+ax[1].plot(thresholds,precision[:-1], label='Precision')
+ax[1].plot(thresholds,recall[:-1],label='Recall')
+ax[1].legend()
+ax[1].set_xlabel('threshold');ax[1].set_ylabel('measure');
+```]
+.center[![:scale 100%](images/precision_recall_curves.png)]
+
+
+---
+# f1-score
+
+--
+count:false
+- Usually, we just want one number to optimize
+
+--
+count:false
+- **f1-score**: harmonic mean of precision and recall
+--
+count:false
+  - eg. weighted average of the precision and recall
+
+$$
+F_1 = 2 \cdot \frac{\text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}
+$$
+
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(logr,X_train,y_train,cv=5,scoring='f1')
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.84 +- 0.11
+```]
+--
+count:false
+.smaller[
+```python
+scores = cross_val_score(dummy_cl,X_train,y_train,cv=5,scoring='f1')
+print(f'{np.mean(scores)} +- {2*np.std(scores)}')
+```
+```
+0.71 +- 0.02
+```]
+
+---
+# ROC Curve
+
+- **R**eceiver **O**perating **C**haracteristic
+--
+count:false
+    - displays FPR vs TPR
+--
+count:false
+    - or (1-Specificity) vs. Sensitivity
+
+
+--
+count:false
+- True Positive Rate (TPR) = Sensitivity = Recall = $\frac{TP}{(TP + FN)}$
+
+
+--
+count:false
+- False Positive Rate (FPR) = (1 - Specificity) = $\frac{FP}{(FP + TN)}$
+
+
+--
+count:false
+- True Negative Rate (TNR) = Specificity = $\frac{TN}{(TN + FP)}$
+
+
+---
+# ROC Curve
+
+```python
+# again sklearn to the rescue
+from sklearn.metrics import roc_curve
+
+fpr_logr, tpr_logr, _ = roc_curve(y_train, y_pred_logr[:,1])
+```
+
+---
+# ROC Curve 
+
+```python
+def plot_roc(curves):
+    fig,ax = plt.subplots(1,1,figsize=(6,6))
+    lw = 2
+    for fpr,tpr,model_name in curves:
+        l1, = ax.plot(fpr, tpr, lw=lw, label=model_name)
+    ax.plot([0, 1], [0, 1], color='k', lw=lw, linestyle='--')
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    ax.set_xlabel('False Positive Rate')
+    ax.set_ylabel('True Positive Rate')
+    ax.set_aspect('equal', 'box')
+    ax.set_title('Receiver operating characteristic example')
+    ax.legend()
+```
+
+---
+# ROC Curve
+
+.smallest[
+```python
+curves = [(fpr_logr,tpr_logr,'logr')]
+plot_roc(curves);
+```]
+.center[![:scale 45%](images/roc_curve_01.png)]
+
+---
+# ROC Curve
+
+.smallest[
+```python
+fpr\_dummy, tpr\_dummy, \_ = roc_curve(y_train, dc.predict\_proba(X\_train)[:,1]) # Compare dummy
+curves.append((fpr_dummy,tpr_dummy,'dummy')); plot_roc(curves);
+```]
+.center[![:scale 45%](images/roc_curve_02.png)]
+
+---
+# ROC Curve
+
+```python
+#Compare against knn
+from sklearn.neighbors import KNeighborsClassifier
+
+params = {'n_neighbors':[3,5,15,20]}
+gs_knn = GridSearchCV(KNeighborsClassifier(),
+                      params, 
+                      cv=5,
+                      scoring='f1')
+gs_knn.fit(X_train,y_train)
+y_pred_knn = gs_knn.predict_proba(X_train)
+print(gs_knn.best_params_)
+```
+```
+{'n_neighbors': 15}
+```
+
+---
+# ROC Curve
+.smallest[
+```python
+fpr\_knn, tpr\_knn, \_ = roc_curve(y\_train, y\_pred_knn[:,1])
+curves.append((fpr\_knn,tpr\_knn,'knn')); plot_roc(curves);
+```]
+.center[![:scale 45%](images/roc_curve_03.png)]
+
+---
+# ROC and AUC
+
+--
+count:false
+- But again, we'd like one number to optimize
+
+--
+count:false
+- **A**rea **U**nder the **C**urve
+
+--
+count:false
+```python
+from sklearn.metrics import roc_auc_score
+```
+--
+count:false
+```python
+for name,model in [('dummy',dc),('logr',logr),('knn',knn)]:
+    y_pred = model.predict_proba(X_train)
+    auc = roc_auc_score(y_train,y_pred[:,1])
+    print('{:5s} auc = {:0.3f}'.format(name,auc))
+```
+```
+dummy auc = 0.50
+logr  auc = 0.87
+knn   auc = 0.94
+```
+
+---
+# Evaluate for Generalization
+
+Once we're done fitting model, check against test set
+
+```python
+knn.score(X_test,y_test)
+```
+```
+0.69
+```
+
+---
+# Review: Steps to Choosing a Model
+- Create Held-Aside Set (Train/Test Split)
+- Determine Metric (or combination of metrics)
+- Get a Baseline for comparison
+- Use Cross-Validation to fit Hyperparameters and Choose Model
+- Evaluate Chosen Model on Held-Aside Set
+
+---
+# Review Classification Metrics
+
+- Confusion Matrix
+- Accuracy/Error
+- Precision
+- Recall
+- $F_1$ Score
+- ROC
+- AUC
+
+
+---
+# Aside: Single Features, Single Sample
+
+.smaller[
+```python
+linr.fit(X_train.iloc[:,0],y_train)
+```]
+
+.smaller[
+```
+ValueError: Expected 2D array, got 1D array instead:
+array=[25.56 21.5  34.3  26.86 27.05 10.7...]
+...
+Reshape your data either using array.reshape(-1, 1) if your data 
+has a single feature or array.reshape(1, -1) if it contains a single sample.
+```]
+
+--
+count:false
+.smaller[
+```python
+X_train.iloc[:,0].shape
+```]
+.smaller[
+```
+(183,)
+```]
+--
+count:false
+.smaller[
+```python
+X_train.iloc[:,0].values.reshape(-1,1).shape
+```]
+.smaller[
+```
+(183, 1)
+```]
+
+
+
+---
+class:middle
+
+# Questions?
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
