@@ -24,6 +24,8 @@ Elements of Data Science - F2019
 ---
 # In This Lecture:
 
+- Pandas Merge and Join
+
 - Dimensionality Reduction
     - PCA
 
@@ -34,6 +36,174 @@ Elements of Data Science - F2019
 - Clustering
     - $k$-Means
     - Heirarchical Agglomerative Clustering
+
+---
+# Pandas merge and join
+
+- Used to combine columns from 2 dataframes
+- Useful during feature engineering
+
+- df.join: most useful when dataframes share indices
+- pd.merge: more useful when dataframes do not share indices
+
+
+---
+# Join/Merge Example
+
+```python
+df = pd.DataFrame([[.5,.25,100,'red'],
+                   [.4,.01,101,'red'],
+                   [.5,.45,102,'green'],
+                   [.2,.03,103,'blue']],
+                   columns=['x1','x2','id','color'])
+df
+```
+```
+    x1    x2   id  color
+0  0.5  0.25  100    red
+1  0.4  0.01  101    red
+2  0.5  0.45  102  green
+3  0.2  0.03  103   blue
+```
+
+---
+# Join/Merge Example
+
+```python
+df_color = pd.get_dummies(df.color,prefix='color')
+df_color
+```
+```
+   color_blue  color_green  color_red
+0           0            0          1
+1           0            0          1
+2           0            1          0
+3           1            0          0
+```
+
+---
+# Join/Merge Example
+
+- 'join' rows that share index values
+
+```python
+df.join(df_color)
+```
+```
+    x1    x2   id  color  color_blue  color_green  color_red
+0  0.5  0.25  100    red           0            0          1
+1  0.4  0.01  101    red           0            0          1
+2  0.5  0.45  102  green           0            1          0
+3  0.2  0.03  103   blue           1            0          0
+```
+
+---
+# Join/Merge Example
+
+```python
+df2 = pd.DataFrame([[101,'yes'],
+                    [102,'no'],
+                    [110,'no']],
+                   columns=['id','comment'])
+df2
+```
+```
+    id comment
+0  101     yes
+1  102      no
+2  110      no
+```
+
+---
+# Join/Merge Example
+
+- merge dataframes using an **inner** join
+- keep only rows that share values in both dataframes
+
+
+```python
+pd.merge(left=df,right=df2,on='id') # how='inner'
+```
+```
+    x1    x2   id  color comment
+0  0.4  0.01  101    red     yes
+1  0.5  0.45  102  green      no
+```
+
+---
+# Join/Merge Example
+
+- merge dataframes using a **left** join
+- keep all rows in the left dataframe, fill missing with NaN
+
+
+```python
+pd.merge(left=df,right=df2,on='id',how='left')
+```
+```
+    x1    x2   id  color comment
+0  0.5  0.25  100    red     NaN
+1  0.4  0.01  101    red     yes
+2  0.5  0.45  102  green      no
+3  0.2  0.03  103   blue     NaN
+```
+
+---
+# Join/Merge Example
+
+- merge dataframes using a **right** join
+- keep all rows in the right dataframe, fill missing with NaN
+
+
+```python
+pd.merge(left=df,right=df2,on='id',how='right')
+```
+```
+    x1    x2   id  color comment
+0  0.4  0.01  101    red     yes
+1  0.5  0.45  102  green      no
+2  NaN   NaN  110    NaN      no
+```
+
+---
+# Join/Merge Example
+
+- merge dataframes using an **outer** join
+- keep rows from both dataframes, fill missing with NaN
+
+
+```python
+pd.merge(left=df,right=df2,on='id',how='outer')
+```
+```
+    x1    x2   id  color comment
+0  0.5  0.25  100    red     NaN
+1  0.4  0.01  101    red     yes
+2  0.5  0.45  102  green      no
+3  0.2  0.03  103   blue     NaN
+4  NaN   NaN  110    NaN      no
+```
+
+---
+# Join/Merge Example
+
+--
+count:false
+- Merge is built to be full featured
+--
+count:false
+- Note that join has a 'how' argument as well
+--
+count:false
+- There is also a pd.concat() command for simple concatenation
+--
+count:false
+- For more info see [pandas docs](https://pandas.pydata.org/pandas-docs/stable/user_guide/merging.html)
+
+---
+class:middle
+
+# Questions?
 
 ---
 # Dimensionality Reduction
@@ -360,9 +530,9 @@ array([[39.66, 50.33, 47.00],
 ```]
 
 ---
-## Representing each Image
+## Representing each Image: Flatten
 
-- Grid as a fixed length feature vector?
+- Grid as a fixed length feature vector? 
 
 --
 count:false
