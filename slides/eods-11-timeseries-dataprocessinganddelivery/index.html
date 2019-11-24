@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Time Series, Data Processing and Delivery (ETL and API)</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Garamond);
+      @import url(https://fonts.googleapis.com/css?family=Muli:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+    </style>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+Elements of Data Science - F2019
+
+# Time Serices, Data Processing and Delivery (ETL and API)
+
+11/25/2019
+
+---
+# Time Series
+
+--
+count:false
+### Data ordered in time
+--
+count:false
+- Applications
+--
+count:false
+    - Financial
+--
+count:false
+    - Economic
+--
+count:false
+    - Scientific
+--
+count:false
+    - etc.
+
+---
+# Time Series Differences
+
+--
+count:false
+- Non-i.i.d.!
+--
+count:false
+- not independent
+    - Ex: Stock price
+--
+count:false
+- not-identically distributed
+    - Ex: Seasonality
+--
+count:false
+- Order matters
+
+---
+# Representing Time in Python
+
+--
+count:false
+- `datetime` library
+
+--
+count:false
+- Pandas `Timestamp`
+
+---
+# `datetime.date`
+
+```python
+from datetime import date
+```
+
+```python
+friday = date(2019,11,22) # year,month,day
+friday
+```
+```
+datetime.date(2019, 11, 22)
+```
+
+```python
+today = date.today()
+today
+```
+```
+datetime.date(2019, 11, 22)
+```
+
+```python
+today.year
+```
+```
+2019
+```
+
+
+
+---
+# `datetime.time`
+
+```python
+from datetime import time
+```
+```python
+noon = time(12,0,0) # hour,minute,second,microsecond 
+noon
+```
+```
+datetime.time(12, 0)
+```
+
+```python
+noon.hour
+```
+```
+12
+```
+
+---
+# `datetime.datetime`
+
+```python
+from datetime import datetime
+```
+
+```python
+# year,month,day,hour,minute,second,microsecond
+friday_afternoon = datetime(2019,11,22,15,30)
+friday_afternoon
+```
+```
+datetime.datetime(2019, 11, 22, 15, 30)
+```
+
+```python
+now = datetime.now()
+now
+```
+```
+datetime.datetime(2019, 11, 22, 14, 36, 4, 104824)
+```
+
+---
+# `datetime.timedelta`
+
+```python
+diff = datetime(2019,11,22,1) - datetime(2019,11,22)
+diff
+```
+```
+datetime.timedelta(days=1, seconds=3600)
+```
+```python
+diff.total_seconds()
+```
+```
+90000.0
+```
+
+```python
+from datetime import timedelta
+
+#days,seconds,microseconds,milliseconds,minutes,hours,weeks
+one_day = timedelta(1)
+
+date(2019,11,22) + 2*one_day
+```
+```
+datetime.date(2019, 11, 24)
+```
+
+---
+# Printing Datetimes: `strftime`
+
+```python
+print(now)
+```
+```
+2019-11-22 14:36:04.104824
+
+```
+```python
+now.strftime('%a %h %d, %Y %I:%M %p')
+```
+```
+'Fri Nov 22, 2019 02:36 PM'
+```
+
+```
+%Y 4-digit year
+%y 2-digit year
+%m 2-digit month
+%d 2-digit day
+%H Hour (24-hour)
+%M 2-digit minute
+%S 2-digit second
+```
+
+See [strftime.org](http://strftime.org/)
+
+
+---
+# Parsing Datetimes: to_datetime
+
+- `dateutil.parser` available
+- pandas has parser built in: `pd.to_datetime()`
+
+.smallest[
+```python
+import pandas as pd
+
+pd.to_datetime('11/22/2019 2:36pm')
+```]
+.smallest[
+```
+Timestamp('2019-11-22 14:36:00')
+```]
+.smallest[
+```python
+dt_index = pd.to_datetime([datetime(2019, 11, 26),
+                           '27th of November, 2019',
+                           '2019-Nov-28',
+                           '11-29-2019',
+                           '20191201',
+                           None
+                          ])
+dt_index
+```
+```
+DatetimeIndex(['2019-11-26', '2019-11-27', '2019-11-28', '2019-11-29',
+               '2019-12-01', 'NaT'], dtype='datetime64[ns]', freq=None)
+```]
+
+
+---
+# `pandas.Timestamp`
+
+- like `datetime.datetime`
+- can include **timezone** and **frequency** info
+- can be used anywhere datetime can be used
+- can handle a missing time: `NaT`
+- an array of Timestamps can be used as an index
+
+```python
+dt_index[0]
+
+```
+```
+Timestamp('2019-11-26 00:00:00')
+```
+
+---
+# DateIndex Indexing/Selecting/Slicing
+
+.smaller[
+```python
+s = pd.Series([101,102,103],
+              index=pd.to_datetime(['20191201','20200101','20200201']))
+s
+```]
+```
+2019-12-01    101
+2020-01-01    102
+2020-02-01    103
+dtype: int64
+```
+
+```python
+s.iloc[0:2]
+```
+```
+2019-12-01    101
+2020-01-01    102
+dtype: int64
+```
+
+---
+# DateIndex Indexing/Selecting/Slicing
+```python
+s['2020']
+```
+```
+2020-01-01    102
+2020-02-01    103
+dtype: int64
+```
+
+```python
+s['2020-01']
+```
+```
+2020-01-01    102
+dtype: int64
+```
+```python
+s['01/01/2019':'01/01/2020']
+```
+```
+2019-12-01    101
+2020-01-01    102
+dtype: int64
+```
+
+---
+# Datetimes in DataFrames
+
+.smaller[
+```python
+df = pd.DataFrame([['12/1/2019',101,'A'],
+                   ['1/1/2020',102,'B']],columns=['col1','col2','col3'])
+df.col1 = pd.to_datetime(df.col1)
+df.set_index('col1',drop=True,inplace=True)
+```
+```
+            col2 col3
+col1
+2019-12-01   101    A
+2020-01-01   102    B
+```]
+
+```python
+df.loc['2020']
+```
+```
+            col2 col3
+col1
+2020-01-01   102    B
+```
+
+---
+# Setting Frequency
+
+.smallest[
+```python
+s = pd.Series([101,103],index=pd.to_datetime(['20191201','20191203']))
+s
+```
+```
+2019-12-01    101
+2019-12-03    103
+dtype: int64
+```]
+
+.smallest[
+```python
+s.resample('D').asfreq()
+```
+```
+2019-12-01    101.0
+2019-12-02      NaN
+2019-12-03    102.0
+Freq: D, dtype: float64
+```]
+
+.smallest[
+```python
+pd.to_datetime(['20191201','20191203'])
+```
+```
+DatetimeIndex(['2019-12-01', '2019-12-03'], dtype='datetime64[ns]', freq=None)
+```]
+
+.smallest[
+```python
+pd.date_range(start='20191201',end='20191203',freq='D')
+```
+```
+DatetimeIndex(['2019-12-01', '2019-12-02', '2019-12-03'], dtype='datetime64[ns]', freq='D')
+```]
+
+---
+## Sample of Available Frequencies
+
+
+.smallest[
+```
+Alias	Description
+___________________________________
+B    business day frequency
+C    custom business day frequency
+D    calendar day frequency
+W    weekly frequency
+M    month end frequency
+SM   semi-month end frequency (15th and end of month)
+BM   business month end frequency
+MS   month start frequency
+...
+Q    quarter end frequency
+BQ   business quarter end frequency
+...
+Y    year end frequency
+BY   business year end frequency
+...
+BH      business hour frequency
+H       hourly frequency
+T,min   minutely frequency
+S       secondly frequency
+L,ms    milliseconds
+U,us    microseconds
+N       nanoseconds
+```]
+
+.tiny[
+https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#timeseries-offset-aliases]
+
+---
+# Timezones
+
+- Handled by `pytz`
+
+```python
+import pytz
+[x for x in pytz.common_timezones if x.startswith('U')]
+```
+```
+['US/Alaska',
+ 'US/Arizona',
+ 'US/Central',
+ 'US/Eastern',
+ 'US/Hawaii',
+ 'US/Mountain',
+ 'US/Pacific',
+ 'UTC']
+```
+
+**UTC**: coordinated universal time (EST is 5 hours behind, -5:00)
+
+---
+# Timezones
+
+.smaller[
+```python
+ts = pd.date_range('11/2/2019 9:30am',periods=2,freq='D')
+ts
+```
+```
+DatetimeIndex(['2019-11-02 09:30:00',
+               '2019-11-03 09:30:00'], dtype='datetime64[ns]', freq='D')
+```]
+
+.smaller[
+```python
+ts_utc = ts.tz_localize('UTC')
+ts_utc
+```
+```
+DatetimeIndex(['2019-11-02 09:30:00+00:00',
+               '2019-11-03 09:30:00+00:00'], dtype='datetime64[ns, UTC]', freq='D')
+```]
+.smaller[
+```python
+ts_utc.tz_convert('US/Eastern')
+```
+```
+DatetimeIndex(['2019-11-02 05:30:00-04:00',
+               '2019-11-03 04:30:00-05:00'], dtype='datetime64[ns, US/Eastern]', freq='D')
+```]
+
+---
+## Timeseries in Python so far:
+
+- datetime .date .time .datetime .timedelta
+- format with .strftime()
+- parse time with pd.to_datetime()
+- panda Timestamp Timedelta DatetimeIndex
+- Indexing with DatetimeIndex
+- Frequencies
+- Timezones
+
+## Didn't discuss:
+- Period and PeriodIndex
+- Panels
+
+
+## Next: Operations on Time Series data
+
+
+---
+# Shifting
+
+- Moving data backward or forward in time (lagging/leading)
+- Ex: percent change
+
+.smaller[
+```python
+ts = pd.Series([1,2,8],
+               index=pd.date_range('1/1/2019',periods=3,freq='M'))
+ts
+```
+```
+2019-01-31    1
+2019-02-28    2
+2019-03-31    8
+Freq: M, dtype: int64
+```]
+.smaller[
+```python
+ts.shift(1) # old value
+```
+```
+2019-01-31    NaN
+2019-02-28    1.0
+2019-03-31    2.0
+Freq: M, dtype: float64
+```]
+
+---
+# Shifting
+
+- **percent change**: `(new_value - old_value) / old_value`
+
+```python
+#  new - old / old == (new/old) - 1
+ts/ ts.shift(1) - 1
+```
+```
+2019-01-31    NaN
+2019-02-28    1.0
+2019-03-31    3.0
+Freq: M, dtype: float64
+```
+---
+# Example Dataset: Twitter Stock
+
+.smallest[
+```python
+#from pandas_datareader import data
+#twtr = data.DataReader('TWTR', start='2013', end='2018', data_source='yahoo') 
+twtr = pd.read_csv('../data/twtr_2013-2018.csv',parse_dates=['Date'])
+twtr = twtr.set_index('Date')
+```
+```
+                 High        Low       Open      Close     Volume  Adj Close
+Date
+2013-11-07  50.090000  44.000000  45.099998  44.900002  117701600  44.900002
+2013-11-08  46.939999  40.689999  45.930000  41.650002   27925300  41.650002
+2013-11-11  43.000000  39.400002  40.500000  42.900002   16113900  42.900002
+2013-11-12  43.779999  41.830002  43.660000  41.900002    6316700  41.900002
+2013-11-13  42.869999  40.759998  41.029999  42.599998    8688300  42.599998
+```]
+
+.center[
+![:scale 50%](images/twitter_close.png)]
+
+
+---
+# Example Dataset: Twitter Stock
+
+- Percent Change
+
+.smallest[
+```python
+(twtr / twtr.shift(1) - 1).head()
+```
+```
+                High       Low      Open     Close    Volume  Adj Close
+Date                                                                   
+2013-11-07       NaN       NaN       NaN       NaN       NaN        NaN
+2013-11-08 -0.062887 -0.075227  0.018404 -0.072383 -0.762745  -0.072383
+2013-11-11 -0.083937 -0.031703 -0.118223  0.030012 -0.422964   0.030012
+2013-11-12  0.018140  0.061675  0.078025 -0.023310 -0.607997  -0.023310
+2013-11-13 -0.020786 -0.025580 -0.060238  0.016706  0.375449   0.016706
+```]
+
+---
+# Resampling
+
+- Convert from one frequency to another
+
+- **Downsampling**
+    - from higher to lower (day to month)
+    - need to aggregate
+
+- **Upsampling**
+    - from lower to higher (month to day)
+    - need to fill missing
+
+
+- Can also be used to set frequency from None
+
+---
+# Resampling: Initialize Frequency
+
+.smallest[
+```python
+twtr.index
+```
+```
+DatetimeIndex(['2013-11-07', '2013-11-08', '2013-11-11', '2013-11-12',
+               ...
+               '2018-11-08', '2018-11-09'],
+*             dtype='datetime64[ns]', name='Date', length=1262, freq=None)
+```]
+.smallest[
+```python
+twtr_B = twtr.resample('B').asfreq() # set frequncy to business day
+```]
+
+.smallest[
+```python
+twtr_B.index
+```
+```
+DatetimeIndex(['2013-11-07', '2013-11-08', '2013-11-11', '2013-11-12',
+               ...
+               '2018-11-08', '2018-11-09'],
+*             dtype='datetime64[ns]', name='Date', length=1307, freq='B')
+```]
+
+---
+# Resampling: Downsampling
+
+- Need to aggregate (like groupby)
+- Example: Downsampling to business quarter using resample
+
+.smallest[
+```python
+twtr_BQ = twtr.resample('BQ')
+print(twtr_BQ)
+```
+```
+DatetimeIndexResampler [freq=&lt;BusinessQuarterEnd: startingMonth=12&gt;,
+                        axis=0, closed=right, label=right,
+                        convention=start, base=0]
+```]
+.smallest[
+```python
+twtr_BQ.mean().head(3)
+```
+```
+                 High        Low       Open      Close        Volume  Adj Close
+Date
+2013-12-31  51.061892  47.848108  49.208919  49.657568  2.285179e+07  49.657568
+2014-03-31  57.966558  55.557705  56.952459  56.587049  1.584258e+07  56.587049
+2014-06-30  38.741905  37.008254  37.923651  37.854603  2.675303e+07  37.854603
+
+```]
+
+---
+# Resampling: Downsampling
+
+.smallest[
+```python
+fig = plt.figure(figsize=(12,6))
+twtr.Close.plot(style='-', label='by D')
+twtr_BQ.Close.mean().plot(style='--',label='by BQ')
+plt.legend(loc='upper right');
+```]
+.center[
+![](images/twtr_downsample.png)]
+
+---
+# Resampling: Upsampling
+
+- Need to decide how to handle missing values
+
+.smallest[
+```python
+# Example: Upsample to hour
+twtr.Close.resample('H').asfreq().head()
+```
+```
+Date
+2013-11-07 00:00:00    44.900002
+2013-11-07 01:00:00          NaN
+2013-11-07 02:00:00          NaN
+Freq: H, Name: Close, dtype: float64
+```]
+
+---
+# Resampling: Upsampling
+
+- `ffill`: Forward Fill 
+- `bfill`: Backward Fill 
+
+.smallest[
+```python
+twtr.Close.resample('H').ffill().head(3)
+```
+```
+Date
+2013-11-07 00:00:00    44.900002
+2013-11-07 01:00:00    44.900002
+2013-11-07 02:00:00    44.900002
+Freq: H, Name: Close, dtype: float64
+```]
+
+.smallest[
+```python
+twtr.Close.resample('H').bfill().head(3)
+```
+```
+Date
+2013-11-07 00:00:00    44.900002
+2013-11-07 01:00:00    41.650002
+2013-11-07 02:00:00    41.650002
+Freq: H, Name: Close, dtype: float64
+```]
+
+
+
+
+---
+class:middle
+
+# Questions?
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    <script>
+    // Config Remark
+    remark.macros['scale'] = function (percentage) {
+        var url = this;
+        return '<img src="' + url + '" style="width: ' + percentage + '" />';
+    };
+    config_remark = {
+        highlightStyle: 'github',
+        highlightSpans: true,
+        highlightLines: true,
+        ratio: "16:9"
+    };
+      var slideshow = remark.create(config_remark);
+
+    // Configure MathJax
+    MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'] /* removed 'code' entry*/
+    }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i = 0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+    </script>
+  </body>
+</html>
